@@ -22,15 +22,18 @@ struct Player {
 
 	string name;
 	Hand hand;
+	bool isAuto;
+	unsigned int bet; //the recorded cumulative chips to bet
+
+	// variables to be saved to file
 	unsigned int won;
 	unsigned int lost;
-	bool isAuto;
+	unsigned int chip;
 
 	Player(char* filename);
 };
 
 ostream& operator<<(ostream& out, const Player& p);
-//ofstream& operator<<(ofstream& out, const Player& p);
 bool handRankCompare(const shared_ptr<Player>& p1, const shared_ptr<Player>& p2);
 
 

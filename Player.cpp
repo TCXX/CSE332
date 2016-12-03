@@ -8,7 +8,7 @@ Player.cpp created by Cindy Le, Adrien Xie, and Yanni Yang
 using namespace std;
 
 //A constructor that tries to read its member variables from a file that has the same name as the player.
-Player::Player(char *playername):name(playername),won(0),lost(0) {
+Player::Player(char *playername):name(playername), won(0), lost(0), chip(20), bet(0) {
 	hand = Hand();
 	string filenamePrefix = playername;
 	if (filenamePrefix.back()=='*') {
@@ -26,37 +26,27 @@ Player::Player(char *playername):name(playername),won(0),lost(0) {
 		vector<string> temp = vector<string>(); //to store readins
 
 		//readin strings
-		if (getline(ifs, line)) {
-			temp.push_back(line);
-		}
-
 		while (!ifs.eof()) {
 			getline(ifs, line);
 			temp.push_back(line);
 		}
 
-		//Probalmeatic
-		if (temp.size()>=3) { //valid
+		if (temp.size()>=4) { //valid
 			//name = temp[0];
 			won = stoi(temp[1]);
 			lost = stoi(temp[2]);
+			chip = stoi(temp[3]);
 		}	
 	}
 }
 
-//A non-member insertion operator that prints out the player's name, number of wins, and number of losses.
+//A non-member insertion operator that prints out the player's name, number of wins and losses, and number of chips.
 ostream& operator<<(ostream& out, const Player& p) {
 
 	out << p.name << endl;
 	out << p.won << endl;
 	out << p.lost << endl;
-	return out;
-}
-
-ofstream& operator<<(ofstream& out, const Player& p) {
-	out << p.name << endl;
-	out << p.won << endl;
-	out << p.lost << endl;
+	out << p.chip << endl;
 	return out;
 }
 

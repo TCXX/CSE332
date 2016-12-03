@@ -7,13 +7,12 @@ FiveCardDraw.h created by Cindy Le, Adrien Xie, and Yanni Yang
 #define FiveCardDraw_H_
 
 
-#include "Game.h"
 #include "Card.h"
 #include "Deck.h"
 #include "Player.h"
 #include "Hand.h"
+#include "Game.h"
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <vector> 
 #include <string>
@@ -21,10 +20,9 @@ FiveCardDraw.h created by Cindy Le, Adrien Xie, and Yanni Yang
 using namespace std;
 
 class FiveCardDraw : public Game {
-		void autoPlayerLeave();
-		vector<int> FiveCardDraw::findAuto();
-		//void autoDiscard();
-		//void discard(int handRank);
+		int autoPlayerLeave();
+		vector<int> findAuto();
+
 	public:
 		FiveCardDraw();
 		virtual int before_turn(Player& p);
@@ -33,10 +31,16 @@ class FiveCardDraw : public Game {
 		virtual int before_round();
 		virtual int round();
 		virtual int after_round();
+
+		/*Never subtract chips directly!!! Use payChips instead to avoid negative values*/
+		unsigned int payChips(Player& p, unsigned int amount);
+		unsigned int betChips(Player& p);
 		
 	protected:
 		size_t dealer;
 		Deck discardDeck;
+		unsigned int ante;
+		unsigned int pot;
 };
 
 #endif  //FiveCardDraw_H_

@@ -7,6 +7,8 @@ FiveCardDraw.cpp created by Cindy Le, Adrien Xie, and Yanni Yang
 #include "FiveCardDraw.h"
 #include "stdlib.h"
 
+#define cout std::cout //so that cout is not ambiguous
+
 using namespace std;
 
 //forward declaration
@@ -15,9 +17,11 @@ using namespace std;
 //A default constructor for fiveCardDraw that initializes dealer to be the first person and discard to be empty. 
 FiveCardDraw::FiveCardDraw() {
 	dealer = 0;
+	pot = 0;
+	ante = 1;
+
 	discardDeck = Deck();
 	deck = Deck();
-
 	deck.standardized(); //52 cards
 }
 
@@ -63,6 +67,8 @@ int FiveCardDraw::before_turn(Player& p) {
 	return 0;
 }
 
+
+
 //A public virtual turn method that deals as many as that they have discarded.
 int FiveCardDraw::turn(Player& p) {
 	for (size_t i = p.hand.size(); i <5; i++) {
@@ -88,56 +94,93 @@ int FiveCardDraw::after_turn(Player& p) {
 int FiveCardDraw::before_round() {
 	deck.shuffle();
 	int len = players.size();
+
+	//players draw cards
 	for (int i = 0; i < 5; i++) {
 		for (int j = 0; j < len; j++) {
 			int index = (dealer + j + 1) % len;
-			if(players[index]->hand.size()<5) players[index]->hand << deck;
+			if(players[index]->hand.size() < 5) players[index]->hand << deck;
 		}
 	}
-	for (int i = 0; i <len; i++) {
-		before_turn(*players[i]);
+
+	// each player place an ante of one chip to the pot
+	for (int i = 0; i < len; i++) {
+		pot += payChips(*players[i], ante);	
 	}
+
+	cout << endl;
+
+	//players decide whether to bet some chips or not - first phase
+	for (int i = 0; i < len; i++) {
+		pot += betChips(*players[i]);
+	}
+
+	//players discard some of the five cards
+	for (int i = 0; i <len; i++) {
+		before_turn(*players[i]); 
+	}
+
 	return 0;
 }
 
 //A public virtual round method that iterates through the players calling their turn method and then their after_turn method.
 int FiveCardDraw::round() {
 	int len = players.size();
+
+	//deal cards until each player has five cards
 	for (int i = 0; i < len; i++ ) {
-		turn(*players[i]);
+		turn(*players[i]); 
 	}
+	
+	//players decide whether to bet some chips or not - second phase
+	for (int i = 0; i < len; i++) {
+		pot += betChips(*players[i]);
+	}
+
+	//print player ranks before sorting
 	for (int i = 0; i < len; i++) {
 		after_turn(*players[i]);
 	}
+
 	return 0;
 }
 
 //A public virtual after_round method that sorts players by hand rank, recycles all cards, and asks whether to leave or join.
 int FiveCardDraw::after_round() {
+	int len = players.size();
 
 	//sort a temporary vector of pointers to players (a copy of the vector member variable)
-	sort(players.begin(), players.end(), handRankCompare);	
-	
-	//print all hands
+	vector<shared_ptr<Player>> tempPlayers;
+	for (int i = 0; i < len; i++) {
+		tempPlayers.push_back(players[i]);
+	}
+	sort(tempPlayers.begin(), tempPlayers.end(), handRankCompare);	
+
+	//print out player ranks after sorting
 	cout << endl;
-	int len = players.size();
-	for (int i = 0; i < len; i++)
-	{
-		cout << "Player " << players[i]->name << " has " << players[i]->hand << endl;
+	for (int i = 0; i < len; i++) {
+		after_turn(*tempPlayers[i]);
 	}
 
 	//find winner's rank
-	auto temp = players[len - 1]->hand.rankHand();
+	auto temp = tempPlayers[len - 1]->hand.rankHand();
 	HandRank maxRank = static_cast<HandRank>(temp);
 
-	for (int i = len-1; i >=0; i--) {
-		//calculate wins and losses
+	//calculate wins and losses
+	vector<shared_ptr<Player>> winners;
+	for (int i = len - 1; i >= 0; i--) {
 		if (players[i]->hand.rankHand() == maxRank) {
 			++players[i]->won;
+			players[i]->chip += players[i]->bet;
+			winners.push_back(players[i]);
 		}
 		else {
 			++players[i]->lost;
+			pot += players[i]->bet;
 		}
+
+		//reset variables for next round
+		players[i]->bet = 0; 
 
 		//move cards from players to the main deck
 		for (int j = players[i]->hand.size()-1; j >=0; j--) {
@@ -146,11 +189,19 @@ int FiveCardDraw::after_round() {
 		}
 	}
 
+	//distribute chips from the pot to winner(s)
+	int numOfWinners = winners.size();
+	int part = (int) floor(pot/numOfWinners);
+	for (int i = 0; i < numOfWinners; i++) {
+		winners[i]->chip += part;
+	}
+	cout << "Pot has " << pot << " chips shared by "<< numOfWinners << " winners. " << endl;
+	pot = 0;
+	
 	//move all cards from discardDeck to the main deck
 	while (discardDeck.size() > 0) {
 		deck.addCard(discardDeck.popCard());
 	}
-
 
 	autoPlayerLeave();
 
@@ -198,7 +249,6 @@ int FiveCardDraw::after_round() {
 	//ask whether to join the game
 	string joinName;
 	
-	//bool findNo;
 	do {
 		cout << endl;
 		cout << "Any player joining? Enter 'No' for nobody. " << endl;
@@ -219,12 +269,46 @@ int FiveCardDraw::after_round() {
 
 	cout << endl;
 
+	//Switch to next dealer
 	if(players.size()!=0) dealer = (dealer + 1) % players.size(); 
+
 	return 0;
 }
 
+// Claculate numer of chips a player pays.
+unsigned int FiveCardDraw::payChips(Player& p, unsigned int amount) {
+	int payed = amount;
+	if (p.chip > amount) { //add the amount equal to ante
+		p.chip -= amount;
+	}
+	else { //add all the chips
+		payed = p.chip;
+		p.chip = 0;
+	}
+	return payed;
+}
+
+// Ask and deduct chips from player and add to a temporary bet variable
+unsigned int FiveCardDraw::betChips(Player& p) {
+	cout << endl;
+	cout << "Player " + p.name +" , please enter 0 for check, 1 or 2 for bet: " << endl;
+
+	// get the number to bet
+	string str;
+	int num = -1;
+	do {
+		getline(cin, str);
+		if (str == "1") num = 1;
+		else if (str == "2") num = 2;
+		else if (str == "0" || str == "no") num = 0;
+	} while (num < 0 || num > 2);
+	
+	unsigned int numToBet = (unsigned int) num;
+	return numToBet;
+}
+
 //Checks for autoplayers whether each of them leaves the game.
-void FiveCardDraw::autoPlayerLeave() {
+int FiveCardDraw::autoPlayerLeave() {
 	vector<int> autoPlayers = findAuto();
 	int numAuto = autoPlayers.size();
 	int numPlayers = players.size();
@@ -265,7 +349,7 @@ void FiveCardDraw::autoPlayerLeave() {
 
 	}
 
-	return;
+	return 0;
 }
 
 //Returns a list of all auto players.
