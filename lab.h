@@ -22,8 +22,8 @@ enum ProgramError {
 	TOO_FEW_ARG, TOO_MANY_ARG, //cmd args
 	HAND_OVERFLOW, EMPTY_HAND, HAND_OUT_OF_RANGE, HAND_NOT_COMPLETE, //hand
 	INS_NOT_AVAIL, GAME_ALREADY_STARTED, UNKNOWN_GAME, NO_GAME_IN_PROCESS, //game
-	ALREADY_PLAYING, //player
-	NO_CARD_TO_DEAL//deck
+	ALREADY_PLAYING, NO_ACTIVES, NO_WINNERS, //player
+	NO_CARD_TO_DEAL //deck
 };
 
 const vector<string> errorMsg {
@@ -42,7 +42,10 @@ const vector<string> errorMsg {
 	"Game is already started! ",
 	"Unknown game! ",
 	"No game is currently in process! ",
+	//player
 	"The player is already playing! ",
+	"No player is unfolded. ",
+	"No player wins this round. ",
 	//deck
 	"The decks have no cards to deal. "
 };

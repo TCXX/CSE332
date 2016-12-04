@@ -20,8 +20,11 @@ FiveCardDraw.h created by Cindy Le, Adrien Xie, and Yanni Yang
 using namespace std;
 
 class FiveCardDraw : public Game {
+
+	private:
 		int autoPlayerLeave();
 		vector<int> findAuto();
+		int countActive();
 
 	public:
 		FiveCardDraw();
@@ -31,6 +34,8 @@ class FiveCardDraw : public Game {
 		virtual int before_round();
 		virtual int round();
 		virtual int after_round();
+
+		int FiveCardDraw::bet_in_turn();
 
 		/*Never subtract chips directly!!! Use payChips instead to avoid negative values*/
 		unsigned int payChips(Player& p, unsigned int amount);

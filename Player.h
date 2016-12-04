@@ -22,7 +22,9 @@ struct Player {
 
 	string name;
 	Hand hand;
-	bool isAuto;
+
+	bool isAuto; //whether program autoplays for the player
+	bool isFold; //whether the player has decided to fold
 	unsigned int bet; //the recorded cumulative chips to bet
 
 	// variables to be saved to file
