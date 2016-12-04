@@ -42,7 +42,6 @@ int FiveCardDraw::before_turn(Player& p) {
 				cout << k + 1 << " ";
 			}
 		}
-		cout << endl;
 	} else { //wait for user input
 		ifDelete = { false,false,false,false,false };
 		while(toDiscard.length()==0) getline(cin, toDiscard); 
@@ -211,9 +210,21 @@ int FiveCardDraw::after_round() {
 		deck.addCard(discardDeck.popCard());
 	}
 
+	//some auto players leave the game
 	autoPlayerLeave();
 
-	//ask whether to leave the game
+	//ask players who have zero chips
+	for (int i = 0; i < len; i++) {
+		if (players[i]->chip == 0) {
+			string quitName = players[i]->name;
+			//re-add the player
+			players.erase(players.begin() + i);
+			addPlayer(quitName); //where zero-chip condition is checked
+		}
+
+	}
+
+	//ask the rest of the players whether to leave the game
 	string checktemp;
 	string quitName;
 	ofstream output;

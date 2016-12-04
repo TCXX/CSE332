@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 			checktemp = argv[i];
 			transform(checktemp.begin(), checktemp.end(), checktemp.begin(),::tolower);
 			// player cannot be named 'no' 
-			if (checktemp=="no" || checktemp=="no*" || find(checktemp.begin(), checktemp.end(), '*')!=checktemp.end()) { //FIX ME
+			if (checktemp=="no" || checktemp=="no*") {
 				cout << "Player with name "<< checktemp <<" is not allowed!" << endl; 
 			}
 			else {

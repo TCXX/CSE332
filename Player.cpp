@@ -8,20 +8,13 @@ Player.cpp created by Cindy Le, Adrien Xie, and Yanni Yang
 using namespace std;
 
 //A constructor that tries to read its member variables from a file that has the same name as the player.
-Player::Player(char *playername):name(playername), won(0), lost(0), chip(20), bet(0), isFold(false) {
+Player::Player(string playername, bool aut):
+		name(playername), won(0), lost(0), chip(20), bet(0), isFold(false), isAuto (aut) {
 	hand = Hand();
-	string filenamePrefix = playername;
-	if (filenamePrefix.back()=='*') {
-		filenamePrefix = filenamePrefix.substr(0, filenamePrefix.size() - 1);
-		isAuto = true;
-	}
-	else {
-		isAuto = false;
-	}
 
-	name = filenamePrefix; //store name without '*'
+	//name is stored without '*'
 
-	string filename = filenamePrefix + ".txt";
+	string filename = name + ".txt";
 	ifstream ifs(filename);
 	if (ifs.is_open()) {
 		string line;
@@ -47,9 +40,8 @@ string Player::toString() const {
 
 	//basic info
 	out << "Player " << name;
-	if (isAuto) out << "[AUTO]";
-	if (isFold) out << "[FOLD]";
-	out << " with " << chip << " chips: " << endl;
+	if (isAuto) out << "*";
+	out << "(" << chip << "): ";
 
 	//hand content
 	if (isFold) {
@@ -61,6 +53,11 @@ string Player::toString() const {
 	}
 
 	return out.str();
+}
+
+int Player::reset() {
+	chip = 20;
+	return 0;
 }
 
 //A non-member insertion operator that prints out the player's name, number of wins, and number of losses.

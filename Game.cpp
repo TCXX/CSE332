@@ -58,13 +58,32 @@ void Game::stopGame() {
 //A public add_player method that dynamically allocates a Player and then push a pointer.
 //The player's name cannot be duplicate.
 void Game::addPlayer(const string &name) {
-	auto ifHasPlayer = findPlayer(name);
+	string namePrefix = name;
+	bool isAuto = false;
+	if (namePrefix.back() == '*') {
+		namePrefix = namePrefix.substr(0, namePrefix.size() - 1);
+		isAuto = true;
+	}
+	auto ifHasPlayer = findPlayer(namePrefix);
 	if (ifHasPlayer) {
 		throw ALREADY_PLAYING;
 	}
 	else {
-		char* cstr = (char*)name.c_str(); //cast const char* to char*
-		players.push_back(make_shared<Player>(cstr));
+		players.push_back(make_shared<Player>(namePrefix, isAuto));
+	}
+	if (players[players.size()-1]->chip == 0) { //the newly added player has no chips
+		string ans;
+		cout << "Player " << namePrefix << " has no chips. Reset? (yes/no) " << endl;
+		do {
+			getline(cin, ans);
+			transform(ans.begin(), ans.end(), ans.begin(), ::tolower);
+		} while (ans!="yes" && ans !="no");
+		if (ans == "no") {
+			players.erase(players.begin() + players.size() - 1);
+		}
+		else {
+			players[players.size() - 1]->reset();
+		}
 	}
 }
 
