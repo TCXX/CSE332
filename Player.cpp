@@ -19,6 +19,8 @@ Player::Player(char *playername):name(playername), won(0), lost(0), chip(20), be
 		isAuto = false;
 	}
 
+	name = filenamePrefix; //store name without '*'
+
 	string filename = filenamePrefix + ".txt";
 	ifstream ifs(filename);
 	if (ifs.is_open()) {
@@ -40,12 +42,38 @@ Player::Player(char *playername):name(playername), won(0), lost(0), chip(20), be
 	}
 }
 
-//A non-member insertion operator that prints out the player's name, number of wins and losses, and number of chips.
+string Player::toString() const {
+	ostringstream out = ostringstream();
+
+	//basic info
+	out << "Player " << name;
+	if (isAuto) out << "[AUTO]";
+	if (isFold) out << "[FOLD]";
+	out << " with " << chip << " chips: " << endl;
+
+	//hand content
+	if (isFold) {
+		int len = hand.size();
+		for (int i = 0; i < len; i++) out << "**  ";
+	}
+	else {
+		out << hand;
+	}
+
+	return out.str();
+}
+
+//A non-member insertion operator that prints out the player's name, number of wins, and number of losses.
 ostream& operator<<(ostream& out, const Player& p) {
+	out << p.toString();
+	return out;
+}
+
+//
+ofstream& operator<<(ofstream& out, const Player& p) {
 	out << p.name << endl;
 	out << p.won << endl;
 	out << p.lost << endl;
-	out << p.chip << endl;
 	return out;
 }
 

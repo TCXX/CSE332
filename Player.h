@@ -33,6 +33,7 @@ struct Player {
 	unsigned int chip;
 
 	Player(char* filename);
+	string toString() const;
 };
 
 ostream& operator<<(ostream& out, const Player& p);

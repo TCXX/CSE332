@@ -84,17 +84,7 @@ int FiveCardDraw::turn(Player& p) {
 
 //A public virtual after_turn method that prints out the player's name and the contents of their hand.
 int FiveCardDraw::after_turn(Player& p) {
-	cout << "Player " << p.name << " has "; 
-	
-	if (p.isFold) {
-		int len = p.hand.size();
-		for (int i = 0; i < len; i++) cout << "**  ";
-	}
-	else {
-		cout << p.hand;
-	}
-		
-	cout << endl;
+	cout << p << endl;
 	return 0;
 }
 
@@ -205,7 +195,7 @@ int FiveCardDraw::after_round() {
 	int numOfWinners = winners.size();
 	if (numOfWinners == 0) throw NO_WINNERS;
 	cout << endl;
-	cout << "Pot has " << pot << " chips shared by " << numOfWinners << " winner(s): " << endl;
+	cout << numOfWinners << " winner(s) sharing " << pot << " chips: " << endl;
 
 	//distribute chips from the pot to winner(s)
 	int part = (int) floor(pot/numOfWinners);
@@ -213,7 +203,6 @@ int FiveCardDraw::after_round() {
 		winners[i]->chip += part;
 		cout << winners[i]->name << endl;
 	}
-
 
 	pot = 0;
 	
@@ -330,18 +319,19 @@ unsigned int FiveCardDraw::betChips(Player& p) {
 	if (p.isFold) return 0;
 
 	cout << endl;
-	cout << "Player " + p.name + ", you have " << p.chip << " chips now. " << endl;
-	cout << "Please enter '0' for check, '1' or '2' for bet, or 'no' for fold: " << endl;
+	cout << p << endl;
+	cout << "Please enter '0' for check, '1' or '2' for bet, or 'f' for fold: " << endl;
 	
 	string str;
-	int num;
+	int num = -1;
 	//get the number to bet from user input
 	do {
 		getline(cin, str);
 		if (str.size()!=0) num = atoi(str.c_str()); //"no" also gives a zero
 
 		// whether the player folds
-		if (str.find("no") != string::npos && str.length() == 2) {
+		bool findNo = (str.find("f") != string::npos) && (str.length() == 1);
+		if (findNo) {
 			p.isFold = true;
 		}
 	} while (num < 0 || num > 2);
