@@ -29,7 +29,7 @@ int FiveCardDraw::before_turn(Player& p) {
 	if (p.isFold) return 0;
 
 	cout << endl;
-	cout << "Player " << p.name << " has " << p.hand << endl;
+	cout << p << endl;
 	cout << "Card to discard? Enter the indices separated by space in a line. " << endl;
 
 	vector<bool> ifDelete;
@@ -296,20 +296,31 @@ int FiveCardDraw::after_round() {
 }
 
 int FiveCardDraw::bet_in_turn() {
-	int len = players.size();
+	size_t len = players.size();
+	if (len == 0) throw NO_PLAYERS;
 	int active;
+
+	// the last person who raises the bet; used to determine if betting phase ends
+	size_t raiser = 0; 
+	size_t i = 0;
+	bool finish = false;
 
 	//loop until one player remains on bet
 	do {
-		for (int i = 0; i < len; i++) {
-			pot += betChips(*players[i]);
-			active = countActive();
-			if (active <= 1) break;
+		unsigned int temp = betChips(*players[i]);
+		if (temp > 0) {
+			pot += temp;
+			raiser = i;
 		}
-	} while (active > 1);
+		
+		active = countActive();
+		if (active <= 1) finish=true;
+		i = (i + 1) % len;
+		if (i == raiser) finish=true;
+
+	} while (!finish); // two breaks
 
 	return 0;
-
 }
 
 // Claculate numer of chips a player pays.
