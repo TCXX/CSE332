@@ -16,6 +16,7 @@ FiveCardDraw::FiveCardDraw() {
 	dealer = 0;
 	pot = 0;
 	ante = 1;
+	bet = 0;
 
 	discardDeck = Deck();
 	deck = Deck();
@@ -63,8 +64,6 @@ int FiveCardDraw::before_turn(Player& p) {
 
 	return 0;
 }
-
-
 
 //A public virtual turn method that deals as many as that they have discarded.
 int FiveCardDraw::turn(Player& p) {
@@ -125,7 +124,7 @@ int FiveCardDraw::round() {
 		for (int i = 0; i < len; i++) turn(*players[i]);
 
 		//players decide whether to bet some chips or not - second phase
-		//bet_in_turn();
+		bet_in_turn();
 	}
 
 	//print player ranks before sorting
@@ -179,7 +178,7 @@ int FiveCardDraw::after_round() {
 			pot += players[i]->bet;
 		}
 
-		//reset variables for next round
+		//reset variables for each player
 		players[i]->bet = 0; 
 		players[i]->isFold = false;
 
@@ -203,7 +202,9 @@ int FiveCardDraw::after_round() {
 		cout << winners[i]->name << endl;
 	}
 
+	//reset variables for the game
 	pot = 0;
+	bet = 0;
 	
 	//move all cards from discardDeck to the main deck
 	while (discardDeck.size() > 0) {
@@ -329,25 +330,50 @@ unsigned int FiveCardDraw::betChips(Player& p) {
 	//skip if the player has already folded
 	if (p.isFold) return 0;
 
+	//range for the number of chips valid to bet
+	int min = bet;
+	int max;
+
 	cout << endl;
 	cout << p << endl;
-	cout << "Please enter '0' for check, '1' or '2' for bet, or 'f' for fold: " << endl;
+
+    //ask player if all-in
+	if (bet >= p.chip) { 
+		cout << "Please enter '"<<p.chip<<"' for ALL-IN, or 'f' for FOLD: " << endl;
+		max = p.chip;
+    //no one has bet yet
+	} else if (bet == 0) {
+		max = 2;
+		cout << "Please enter '0' for CHECK, '1' or '2' for BET, or 'f' for FOLD: " << endl;
+	}
+    //someone has bet already
+	else if (bet + 1 >= p.chip) {
+		max = bet + 1;
+		cout << "Please enter "<<bet<<" for CALL, '"<<bet+1<<" for RAISE, or 'f' for FOLD: " << endl;
+	} else {
+		max = bet + 2;
+		cout << "Please enter " << bet << " for CALL, '" << bet + 1 << "' or '" << bet + 2 << "' for RAISE, or 'f' for FOLD: " << endl;
+	}
 	
 	string str;
 	int num = -1;
+
 	//get the number to bet from user input
 	do {
 		getline(cin, str);
-		if (str.size()!=0) num = atoi(str.c_str()); //"no" also gives a zero
-
-		// whether the player folds
 		bool findNo = (str.find("f") != string::npos) && (str.length() == 1);
 		if (findNo) {
+			num = 0;
 			p.isFold = true;
+			break;
 		}
-	} while (num < 0 || num > 2);
+		else if (str.length() != 0) {
+			num = atoi(str.c_str());
+		}
+	} while (num < min || num > max);
 	
 	unsigned int numToBet = (unsigned int) num;
+	if (numToBet > bet) bet = numToBet;
 	return numToBet;
 }
 

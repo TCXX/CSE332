@@ -46,6 +46,7 @@ class FiveCardDraw : public Game {
 		Deck discardDeck;
 		unsigned int ante;
 		unsigned int pot;
+		unsigned int bet; // the cumulative amount players have bet during that phase
 };
 
 #endif  //FiveCardDraw_H_
