@@ -22,10 +22,10 @@ int FiveCardDraw::before_round(){
 	int len = players.size();
 
 	//players draw cards
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < MAX_CARDS_IN_HAND; i++) {
 		for (int j = 0; j < len; j++) {
 			int index = (dealer + j + 1) % len;
-			if (players[index]->hand.size() < 5) players[index]->hand << deck; //FIX ME: change 5 to 7
+			if (players[index]->hand.size() < MAX_CARDS_IN_HAND) players[index]->hand << deck;
 		}
 	}
 
