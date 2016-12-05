@@ -75,9 +75,9 @@ ofstream& operator<<(ofstream& out, const Player& p) {
 }
 
 //
-bool handRankCompare(const shared_ptr<Player>& p1, const shared_ptr<Player>& p2) {
+bool handCompare(const shared_ptr<Player>& p1, const shared_ptr<Player>& p2) {
 	if (p1.get() == NULL) return false;
 	if (p2.get() == NULL) return true;
-	return pokerRank(p1->hand, p2->hand);
+	return p1->hand < p2->hand;
 }
 

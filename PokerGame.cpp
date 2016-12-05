@@ -23,8 +23,8 @@ PokerGame::PokerGame() {
 	deck.standardized(); //52 cards
 }
 
-//A public virtual before_turn method that asks the user cards to discard and then move them to discarDeck.
-int PokerGame::before_turn(Player& p) {
+//A method that asks the user cards to discard and then move them to discarDeck.
+int PokerGame::discardCards(Player& p) {
 	//skip if the player has already folded
 	if (p.isFold) return 0;
 
@@ -38,7 +38,7 @@ int PokerGame::before_turn(Player& p) {
 					  //remove card correspondingly
 	if (p.isAuto) {
 		ifDelete = p.hand.discardIndex();
-		for (int k = 0; k < 5; k++) {
+		for (size_t k = 0; k < MAX_CARDS_IN_HAND; k++) {
 			if (ifDelete[k]) {
 				cout << k + 1 << " ";
 			}
@@ -48,7 +48,7 @@ int PokerGame::before_turn(Player& p) {
 		ifDelete = { false,false,false,false,false };
 		while (toDiscard.length() == 0) getline(cin, toDiscard);
 		toDiscard = " " + toDiscard + " ";
-		for (int k = 1; k < 6; k++) {
+		for (size_t k = 1; k <= MAX_CARDS_IN_HAND; k++) {
 			if (toDiscard.find(" " + to_string(k) + " ") != string::npos) {
 				ifDelete[k - 1] = true;
 			}
@@ -56,7 +56,7 @@ int PokerGame::before_turn(Player& p) {
 	}
 
 	//remove the card from the player to the discard desk
-	for (int i = 4; i >= 0; i--) {
+	for (int i = MAX_CARDS_IN_HAND - 1; i >= 0; i--) {
 		if (ifDelete[i]) {
 			discardDeck.addCard(p.hand[i]);
 			p.hand.removeCard(i);
@@ -66,9 +66,9 @@ int PokerGame::before_turn(Player& p) {
 	return 0;
 }
 
-//A public virtual turn method that deals as many as that they have discarded.
-int PokerGame::turn(Player& p) {
-	for (size_t i = p.hand.size(); i <5; i++) {
+//A method that deals as many as that they have discarded.
+int PokerGame::dealUntilFull(Player& p) {
+	for (size_t i = p.hand.size(); i < MAX_CARDS_IN_HAND; i++) {
 		if (deck.size() == 0) {
 			if (discardDeck.size() == 0) throw NO_CARD_TO_DEAL; //when both decks are empty
 			discardDeck.shuffle();
@@ -81,33 +81,20 @@ int PokerGame::turn(Player& p) {
 	return 0;
 }
 
-//A public virtual after_turn method that prints out the player's name and the contents of their hand.
-int PokerGame::after_turn(Player& p) {
-	cout << p << endl;
-	return 0;
-}
-
 //A public virtual before_round method that shuffles and then deals one card at a time from the main deck.
 int PokerGame::before_round() {
 	deck.shuffle();
 	int len = players.size();
-
-	//players draw cards
-	for (int i = 0; i < 5; i++) {
-		for (int j = 0; j < len; j++) {
-			int index = (dealer + j + 1) % len;
-			if (players[index]->hand.size() < 5) players[index]->hand << deck; //FIX ME: change 5 to 7
-		}
-	}
 
 	// each player place an ante of one chip to the pot
 	for (int i = 0; i < len; i++) {
 		pot += payChips(*players[i], ante);
 	}
 
-	cout << endl;
 	return 0;
 }
+
+//round() will be implemented in subclasses
 
 //A public virtual after_round method that sorts players by hand rank, recycles all cards, and asks whether to leave or join.
 int PokerGame::after_round() {
@@ -118,7 +105,7 @@ int PokerGame::after_round() {
 	for (int i = 0; i < len; i++) {
 		tempPlayers.push_back(players[i]);
 	}
-	sort(tempPlayers.begin(), tempPlayers.end(), handRankCompare);
+	sort(tempPlayers.begin(), tempPlayers.end(), handCompare);
 
 	//print out player ranks after sorting
 	cout << endl;

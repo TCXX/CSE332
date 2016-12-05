@@ -13,7 +13,23 @@ using namespace std;
 
 //A default constructor for fiveCardDraw that initializes dealer to be the first person and discard to be empty. 
 FiveCardDraw::FiveCardDraw() : PokerGame() {
-	//initialize as in superclass
+	MAX_CARDS_IN_HAND = 5;
+}
+
+int FiveCardDraw::before_round(){
+	PokerGame::before_round();
+
+	int len = players.size();
+
+	//players draw cards
+	for (int i = 0; i < 5; i++) {
+		for (int j = 0; j < len; j++) {
+			int index = (dealer + j + 1) % len;
+			if (players[index]->hand.size() < 5) players[index]->hand << deck; //FIX ME: change 5 to 7
+		}
+	}
+
+	return 0;
 }
 
 //A public virtual round method that iterates through the players calling their turn method and then their after_turn method.
@@ -41,5 +57,23 @@ int FiveCardDraw::round() {
 		after_turn(*players[i]);
 	}
 
+	return 0;
+}
+
+//A public virtual before_turn method that asks the user cards to discard and then move them to discarDeck.
+int FiveCardDraw::before_turn(Player& p) {
+	discardCards(p);
+	return 0;
+}
+
+//A public virtual turn method that deals as many as that they have discarded.
+int FiveCardDraw::turn(Player& p) {
+	dealUntilFull(p);
+	return 0;
+}
+
+//A public virtual after_turn method that prints out the player's name and the contents of their hand.
+int FiveCardDraw::after_turn(Player& p) {
+	cout << p << endl;
 	return 0;
 }
