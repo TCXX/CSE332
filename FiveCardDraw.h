@@ -11,7 +11,7 @@ FiveCardDraw.h created by Cindy Le, Adrien Xie, and Yanni Yang
 #include "Deck.h"
 #include "Player.h"
 #include "Hand.h"
-#include "Game.h"
+#include "PokerGame.h"
 #include <iostream>
 #include <sstream>
 #include <vector> 
@@ -19,34 +19,11 @@ FiveCardDraw.h created by Cindy Le, Adrien Xie, and Yanni Yang
 
 using namespace std;
 
-class FiveCardDraw : public Game {
-
-	private:
-		int autoPlayerLeave();
-		vector<int> findAuto();
-		int countActive();
+class FiveCardDraw : public PokerGame {
 
 	public:
 		FiveCardDraw();
-		virtual int before_turn(Player& p);
-	    virtual int turn(Player& p);
-		virtual int after_turn(Player& p);
-		virtual int before_round();
 		virtual int round();
-		virtual int after_round();
-
-		int FiveCardDraw::bet_in_turn();
-
-		/*Never subtract chips directly!!! Use payChips instead to avoid negative values*/
-		unsigned int payChips(Player& p, unsigned int amount);
-		unsigned int betChips(Player& p);
-		
-	protected:
-		size_t dealer;
-		Deck discardDeck;
-		unsigned int ante;
-		unsigned int pot;
-		unsigned int bet; // the cumulative amount players have bet during that phase
 };
 
 #endif  //FiveCardDraw_H_
