@@ -35,7 +35,7 @@ int PokerGame::discardCards(Player& p) {
 	vector<bool> ifDelete;
 	string toDiscard; //user response
 
-					  //remove card correspondingly
+	//remove card correspondingly
 	if (p.isAuto) {
 		ifDelete = p.hand.discardIndex();
 		for (size_t k = 0; k < MAX_CARDS_IN_HAND; k++) {
@@ -45,21 +45,21 @@ int PokerGame::discardCards(Player& p) {
 		}
 	}
 	else { //wait for user input
-		ifDelete = { false,false,false,false,false };
 		while (toDiscard.length() == 0) getline(cin, toDiscard);
 		toDiscard = " " + toDiscard + " ";
-		for (size_t k = 1; k <= MAX_CARDS_IN_HAND; k++) {
-			if (toDiscard.find(" " + to_string(k) + " ") != string::npos) {
-				ifDelete[k - 1] = true;
+		for (size_t k = 0; k < MAX_CARDS_IN_HAND; k++) {
+			if (toDiscard.find(" " + to_string(k+1) + " ") != string::npos) {
+				ifDelete.push_back(true);
 			}
+			else ifDelete.push_back(false);
 		}
 	}
 
 	//remove the card from the player to the discard desk
-	for (int i = MAX_CARDS_IN_HAND - 1; i >= 0; i--) {
-		if (ifDelete[i]) {
-			discardDeck.addCard(p.hand[i]);
-			p.hand.removeCard(i);
+	for (size_t i = MAX_CARDS_IN_HAND; i > 0; i--) {
+		if (ifDelete[i-1]) {
+			discardDeck.addCard(p.hand[i-1]);
+			p.hand.removeCard(i-1);
 		}
 	}
 
@@ -84,10 +84,10 @@ int PokerGame::dealUntilFull(Player& p) {
 //A public virtual before_round method that shuffles and then deals one card at a time from the main deck.
 int PokerGame::before_round() {
 	deck.shuffle();
-	int len = players.size();
+	size_t len = players.size();
 
 	// each player place an ante of one chip to the pot
-	for (int i = 0; i < len; i++) {
+	for (size_t i = 0; i < len; i++) {
 		pot += payChips(*players[i], ante);
 	}
 
@@ -98,65 +98,65 @@ int PokerGame::before_round() {
 
 //A public virtual after_round method that sorts players by hand rank, recycles all cards, and asks whether to leave or join.
 int PokerGame::after_round() {
-	int len = players.size();
+	size_t len = players.size();
 
 	//sort a temporary vector of pointers to players (a copy of the vector member variable)
 	vector<shared_ptr<Player>> tempPlayers;
-	for (int i = 0; i < len; i++) {
+	for (size_t i = 0; i < len; i++) {
 		tempPlayers.push_back(players[i]);
 	}
 	sort(tempPlayers.begin(), tempPlayers.end(), handCompare);
 
 	//print out player ranks after sorting
 	cout << endl;
-	for (int i = 0; i < len; i++) {
-		after_turn(*tempPlayers[i]);
+	for (size_t i = 0; i < len; i++) {
+		cout << *tempPlayers[i] << endl;
 	}
 
 	//find winner's combo
-	int maxIndex = -1;
-	for (int i = len - 1; i >= 0; i--) {
-		if (tempPlayers[i]->isFold == false) {
-			maxIndex = i;
+	size_t maxIndex = len; //invalid value to indicate undefined
+	for (size_t i = len; i > 0; i--) {
+		if (tempPlayers[i-1]->isFold == false) {
+			maxIndex = i-1;
 			break;
 		}
 	}
-	if (maxIndex == -1) throw NO_ACTIVES;
+	if (maxIndex == len) throw NO_ACTIVES;
 	int maxHash = tempPlayers[maxIndex]->hand.hashHand();
 
 	//calculate wins and losses
 	vector<shared_ptr<Player>> winners;
-	for (int i = len - 1; i >= 0; i--) {
-		if ((players[i]->isFold == false) && (players[i]->hand.hashHand() == maxHash)) {
-			++players[i]->won;
-			players[i]->chip += players[i]->bet;
-			winners.push_back(players[i]);
+	for (size_t i = len; i > 0; i--) {
+		if ((players[i-1]->isFold == false) && (players[i-1]->hand.hashHand() == maxHash)) {
+			++players[i-1]->won;
+			players[i-1]->chip += players[i-1]->bet;
+			winners.push_back(players[i-1]);
 		}
 		else {
-			++players[i]->lost;
-			pot += players[i]->bet;
+			++players[i-1]->lost;
+			pot += players[i-1]->bet;
 		}
 
 		//reset variables for each player
-		players[i]->bet = 0;
-		players[i]->isFold = false;
+		players[i-1]->bet = 0;
+		players[i-1]->isFold = false;
 
 		//move cards from players to the main deck
-		for (int j = players[i]->hand.size() - 1; j >= 0; j--) {
-			deck.addCard(players[i]->hand[j]);
-			players[i]->hand.removeCard(j);
+		for (size_t j = players[i-1]->hand.size(); j > 0; j--) {
+			deck.addCard(players[i-1]->hand[j-1]);
+			players[i-1]->hand.removeCard(j-1);
 		}
 	}
 
 	//calculate number of winners
-	int numOfWinners = winners.size();
+	size_t numOfWinners = winners.size();
 	if (numOfWinners == 0) throw NO_WINNERS;
 	cout << endl;
 	cout << numOfWinners << " winner(s) sharing " << pot << " chips: " << endl;
 
 	//distribute chips from the pot to winner(s)
 	int part = (int)floor(pot / numOfWinners);
-	for (int i = 0; i < numOfWinners; i++) {
+	for (size_t i = 0; i < numOfWinners; i++) {
 		winners[i]->chip += part;
 		cout << winners[i]->name << endl;
 	}
@@ -174,7 +174,7 @@ int PokerGame::after_round() {
 	autoPlayerLeave();
 
 	//ask players who have zero chips
-	for (int i = 0; i < len; i++) {
+	for (size_t i = 0; i < len; i++) {
 		if (players[i]->chip == 0) {
 			string quitName = players[i]->name;
 			//re-add the player
@@ -351,15 +351,15 @@ unsigned int PokerGame::betChips(Player& p) {
 
 //Check for autoplayers whether each of them leaves the game.
 int PokerGame::autoPlayerLeave() {
-	vector<int> autoPlayers = findAuto();
-	int numAuto = autoPlayers.size();
-	int numPlayers = players.size();
+	vector<size_t> autoPlayers = findAuto();
+	size_t numAuto = autoPlayers.size();
+	size_t numPlayers = players.size();
 	unsigned int leaveNum;
 	string name;
 
 	//immediate update associated files
 	ofstream output;
-	for (int i = 0; i < numPlayers; i++) {
+	for (size_t i = 0; i < numPlayers; i++) {
 		name = (*players[i]).name;
 		if (find(autoPlayers.begin(), autoPlayers.end(), i) != autoPlayers.end()) {
 			name = name.substr(0, name.size() - 1);
@@ -370,21 +370,21 @@ int PokerGame::autoPlayerLeave() {
 	}
 
 	//auto players leave with probablity
-	for (int i = numAuto - 1; i >= 0; i--) {
+	for (size_t i = numAuto; i > 0; i--) {
 		leaveNum = rand() % 100;
-		if (autoPlayers[i] == 0) { //the last place
+		if (autoPlayers[i-1] == 0) { //the last place
 			if (leaveNum < 90) {
-				players.erase(players.begin() + autoPlayers[i]);
+				players.erase(players.begin() + autoPlayers[i-1]);
 			}
 		}
-		else if (autoPlayers[i] == numPlayers) { //the first place
+		else if (autoPlayers[i-1] == numPlayers) { //the first place
 			if (leaveNum < 10) {
-				players.erase(players.begin() + autoPlayers[i]);
+				players.erase(players.begin() + autoPlayers[i-1]);
 			}
 		}
 		else {
 			if (leaveNum < 50) { //otherwise
-				players.erase(players.begin() + autoPlayers[i]);
+				players.erase(players.begin() + autoPlayers[i-1]);
 			}
 		}
 
@@ -394,10 +394,10 @@ int PokerGame::autoPlayerLeave() {
 }
 
 //Return a list of all auto players.
-vector<int> PokerGame::findAuto() {
-	int currentPlayerNum = players.size();
-	vector<int> autoPlayers;
-	for (int i = 0; i < currentPlayerNum; i++) {
+vector<size_t> PokerGame::findAuto() {
+	size_t currentPlayerNum = players.size();
+	vector<size_t> autoPlayers;
+	for (size_t i = 0; i < currentPlayerNum; i++) {
 		char last = (*players[i]).name.back();
 		if (last == '*') {
 			autoPlayers.push_back(i);
@@ -407,10 +407,10 @@ vector<int> PokerGame::findAuto() {
 }
 
 //Count number of active players who have not folded.
-int PokerGame::countActive() {
-	int numPlayers = players.size();
-	int active = 0;
-	for (int i = 0; i < numPlayers; i++) {
+size_t PokerGame::countActive() {
+	size_t numPlayers = players.size();
+	size_t active = 0;
+	for (size_t i = 0; i < numPlayers; i++) {
 		if (players[i]->isFold == false) active++;
 	}
 	return active;

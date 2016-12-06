@@ -32,7 +32,7 @@ public:
 	virtual int round() = 0; //sth. different for every subclass
 	virtual int after_round(); //same for every subclass
 
-	int bet_in_turn();
+	int bet_in_turn(); 
 	int discardCards(Player& p);
 	int dealUntilFull(Player& p);
 
@@ -41,7 +41,7 @@ public:
 	unsigned int betChips(Player& p);
 
 protected:
-    size_t MAX_CARDS_IN_HAND = 0;
+    size_t MAX_CARDS_IN_HAND;
 
 	size_t dealer;
 	Deck discardDeck;
@@ -50,8 +50,8 @@ protected:
 	unsigned int bet; // the cumulative amount players have bet during that phase
 
 	int autoPlayerLeave();
-	vector<int> findAuto();
-	int countActive();
+	vector<size_t> findAuto();
+	size_t countActive();
 };
 
 #endif  //PokerGame_H_

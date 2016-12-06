@@ -43,20 +43,20 @@ void Deck::shuffle() {
 }
 
 //A const "size" method that returns the number of elements in the container member variable.
-int Deck::size() const {
+size_t Deck::size() const {
 	return cards.size();
 }
 
 //To print out deck's information, one card per line.
 string Deck::toString() const {
 	ostringstream out = ostringstream();
-	int len = cards.size();
+	size_t len = cards.size();
 	
 	if (len==0) {
 		out << "The deck is empty. " << endl;
 	}else {
 		out << "The deck has " << len << " cards: " << endl;
-		for (int i = 0; i < len; i++) {
+		for (size_t i = 0; i < len; i++) {
 			CardSuit suit = cards[i].suit;
 			CardRank rank = cards[i].rank;
 			out << rankName[rank - 1] << suitName[suit - 1] << "  ";

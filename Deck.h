@@ -36,7 +36,7 @@ class Deck{
 		void shuffle();
 		void addCard(Card& c);
 		void standardized();
-		int size() const;
+		size_t size() const;
 		string toString() const;
 
 	private:

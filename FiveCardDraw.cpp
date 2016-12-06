@@ -19,12 +19,12 @@ FiveCardDraw::FiveCardDraw() : PokerGame() {
 int FiveCardDraw::before_round(){
 	PokerGame::before_round();
 
-	int len = players.size();
+	size_t len = players.size();
 
 	//players draw cards
-	for (int i = 0; i < MAX_CARDS_IN_HAND; i++) {
-		for (int j = 0; j < len; j++) {
-			int index = (dealer + j + 1) % len;
+	for (size_t i = 0; i < MAX_CARDS_IN_HAND; i++) {
+		for (size_t j = 0; j < len; j++) {
+			size_t index = (dealer + j + 1) % len;
 			if (players[index]->hand.size() < MAX_CARDS_IN_HAND) players[index]->hand << deck;
 		}
 	}
@@ -34,18 +34,17 @@ int FiveCardDraw::before_round(){
 
 //A public virtual round method that iterates through the players calling their turn method and then their after_turn method.
 int FiveCardDraw::round() {
-	int len = players.size();
+	size_t len = players.size();
 
 	//players decide whether to bet some chips or not - first phase
 	bet_in_turn();
 
-	//change some cards in hand
 	if (countActive() > 1) {
 		//players discard some of the five cards
-		for (int i = 0; i <len; i++) before_turn(*players[i]);
+		for (size_t i = 0; i <len; i++) before_turn(*players[i]);
 
 		//deal cards until each player has five cards
-		for (int i = 0; i < len; i++) turn(*players[i]);
+		for (size_t i = 0; i < len; i++) turn(*players[i]);
 
 		//players decide whether to bet some chips or not - second phase
 		bet_in_turn();
@@ -53,7 +52,7 @@ int FiveCardDraw::round() {
 
 	//print player ranks before sorting
 	cout << endl;
-	for (int i = 0; i < len; i++) {
+	for (size_t i = 0; i < len; i++) {
 		after_turn(*players[i]);
 	}
 

@@ -28,7 +28,7 @@ class Hand{
 		Hand(const Hand& h);
 		~Hand();
 
-		int size() const;
+		size_t size() const;
 		string toString() const;
 
 		vector<Card> getCards() const;

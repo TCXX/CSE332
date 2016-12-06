@@ -24,7 +24,7 @@ shared_ptr<Game> Game::instance() {
 }
 
 //Returns the number of players.
-int Game::size() {
+size_t Game::size() {
 	return players.size();
 }
 

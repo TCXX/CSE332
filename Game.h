@@ -29,7 +29,7 @@ class Game {
 		vector<shared_ptr<Player>> players;
 	public:
 		static shared_ptr<Game> instance();
-		int size(); //defined for convinience
+		size_t size(); //defined for convinience
 		static void startGame(const string& sofgames);
 		static void stopGame();
 		void addPlayer(const string &name);

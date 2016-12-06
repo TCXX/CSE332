@@ -23,19 +23,19 @@ vector<Card> Hand::getCards() const {
 }
 
 //A const "size" method that returns the number of elements in the container member variable.
-int Hand::size() const {
+size_t Hand::size() const {
 	return cards.size();
 }
 
 //A const "as string" method that returns (by value) a C++ style string containing a space-separated sequence of valid card definition.
 string Hand::toString() const {
 	ostringstream out = ostringstream();
-	int len = cards.size();
+	size_t len = cards.size();
 	if (len==0) {
 		out << "The hand is empty. ";
 	}else {
 		
-		for (int i = 0; i < len; i++) {
+		for (size_t i = 0; i < len; i++) {
 			CardSuit suit = cards[i].suit;
 			CardRank rank = cards[i].rank;
 			out << rankName[rank - 1] << suitName[suit - 1] << "  ";
@@ -62,13 +62,13 @@ Hand& Hand::operator=(const Hand& h) {
 
 //A const equivalence operator that returns true if and only if exactly the same sequence of cards appears in both objects.
 bool Hand::operator==(const Hand& h) const {
-	int len = size();
+	size_t len = size();
 	vector<Card> temp = h.getCards();
 	if (len != h.size()) {
 		return false;
 	}
 		
-	for (int i = 0; i < len; i++) {
+	for (size_t i = 0; i < len; i++) {
 		if (!(cards[i] == temp[i])) return false;
 	}
 
@@ -78,10 +78,10 @@ bool Hand::operator==(const Hand& h) const {
 //A const less than operator judging whether the hand should appear before the given hand according to a lexical (phone book style) ordering.
 bool Hand::operator<(const Hand& h) const {
 	vector<Card> c = h.getCards();
-	int len1 = cards.size();
-	int len2 = c.size();
-	int lm = min(len1, len2);
-	for (int i = 0; i < lm; i++) {
+	size_t len1 = cards.size();
+	size_t len2 = c.size();
+	size_t lm = min(len1, len2);
+	for (size_t i = 0; i < lm; i++) {
 		if (!(cards[i] == c[i])) return cards[i] < c[i];
 	}
 	return len1 < len2;
@@ -89,9 +89,6 @@ bool Hand::operator<(const Hand& h) const {
 
 //To add the given card to the hand.
 void Hand::pushCard(const Card& c) {
-	if (cards.size()>=5) {
-		throw(HAND_OVERFLOW);
-	}
 	cards.push_back(c);
 	sort(cards.begin(), cards.end(), less<Card>());
 }
@@ -110,29 +107,29 @@ int Hand::hashHand() const  {
 	bool three[3];
 	bool four[2];
 
-	for (int i = 0; i <= 3; i++) {
+	for (size_t i = 0; i <= 3; i++) {
 		if (cards[i].rank == cards[i + 1].rank) pair[i] = true;
 		else pair[i] = false;
 	}
 
-	for (int i = 0; i <= 2; i++) three[i] = pair[i] && pair[i + 1];
+	for (size_t i = 0; i <= 2; i++) three[i] = pair[i] && pair[i + 1];
 	for (int i = 0; i <= 1; i++) four[i] = three[i] && three[i + 1];
 
 	//deal with consecutive rank
 	bool straight = true;
-	for (int i = 0; i <= 3; i++) {
+	for (size_t i = 0; i <= 3; i++) {
 		if (cards[i + 1].rank - cards[i].rank != 1) straight = false;
 	}
 
 	//deal with same suit
 	bool flush = true;
-	for (int i = 0; i <= 3; i++) {
+	for (size_t i = 0; i <= 3; i++) {
 		if (cards[i + 1].suit != cards[i].suit) flush = false;
 	}
 
 	//rank the hand
 	HandRank rank;
-	vector<int> index(5); //specify the rule to determine orders when two hands have same rank
+	vector<size_t> index(5); //specify the rule to determine orders when two hands have same rank
 
 	if (straight && flush) { //eg. 12345 all same suit
 		rank = STRAIGHT_FLUSH;
@@ -208,7 +205,7 @@ int Hand::hashHand() const  {
 	}
 
 	int ans = 0;
-	for (int i = 0; i <= 4; i++) if (index[i] <= 4) ans = ans * 13 + cards[index[i]].rank;
+	for (size_t i = 0; i <= 4; i++) if (index[i] <= 4) ans = ans * 13 + cards[index[i]].rank;
 	ans = rank * 1000000 + ans; //the highest digit represents rank
 	return ans;
 }
@@ -221,23 +218,23 @@ vector<bool> Hand::discardIndex() const {
 	bool three[3];
 	bool four[2];
 
-	for (int i = 0; i <= 3; i++) {
+	for (size_t i = 0; i <= 3; i++) {
 		if (cards[i].rank == cards[i + 1].rank) pair[i] = true;
 		else pair[i] = false;
 	}
 
-	for (int i = 0; i <= 2; i++) three[i] = pair[i] && pair[i + 1];
-	for (int i = 0; i <= 1; i++) four[i] = three[i] && three[i + 1];
+	for (size_t i = 0; i <= 2; i++) three[i] = pair[i] && pair[i + 1];
+	for (size_t i = 0; i <= 1; i++) four[i] = three[i] && three[i + 1];
 
 	//deal with consecutive rank
 	bool straight = true;
-	for (int i = 0; i <= 3; i++) {
+	for (size_t i = 0; i <= 3; i++) {
 		if (cards[i + 1].rank - cards[i].rank != 1) straight = false;
 	}
 
 	//deal with same suit
 	bool flush = true;
-	for (int i = 0; i <= 3; i++) {
+	for (size_t i = 0; i <= 3; i++) {
 		if (cards[i + 1].suit != cards[i].suit) flush = false;
 	}
 
