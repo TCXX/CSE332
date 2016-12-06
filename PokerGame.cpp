@@ -67,17 +67,40 @@ int PokerGame::discardCards(Player& p) {
 }
 
 //A method that deals as many as that they have discarded.
-int PokerGame::dealUntilFull(Player& p) {
+int PokerGame::dealUntilFull(Player& p, bool visible) {
 	for (size_t i = p.hand.size(); i < MAX_CARDS_IN_HAND; i++) {
-		if (deck.size() == 0) {
-			if (discardDeck.size() == 0) throw NO_CARD_TO_DEAL; //when both decks are empty
-			discardDeck.shuffle();
-			p.hand << discardDeck; //deal from the discarded when no card in the main deck
-		}
-		else {
-			p.hand << deck;
+		dealCard(p, true);
+	}
+	return 0;
+}
+
+// deal a card to each of all players a card of the specified type.
+int PokerGame::dealAround(bool visible) {
+	size_t len = players.size();
+	for (size_t j = 0; j < len; j++) {
+		size_t index = (dealer + j + 1) % len;
+		if (players[index]->hand.size() < MAX_CARDS_IN_HAND) {
+			dealCard(*players[index], visible);
 		}
 	}
+	return 0;
+}
+
+//deal a card to a specified player of a specified type.
+int PokerGame::dealCard(Player& p, bool visible) {
+	Card c;
+	if (deck.size() == 0) {
+		if (discardDeck.size() == 0) throw NO_CARD_TO_DEAL; //when both decks are empty
+		discardDeck.shuffle();
+		c = discardDeck.popCard(); //deal from the discarded when no card in the main deck
+	}
+	else {
+		c = deck.popCard();
+	}
+
+	c.visible = visible;
+	p.hand.pushCard(c);
+
 	return 0;
 }
 

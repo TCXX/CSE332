@@ -19,14 +19,9 @@ FiveCardDraw::FiveCardDraw() : PokerGame() {
 int FiveCardDraw::before_round(){
 	PokerGame::before_round();
 
-	size_t len = players.size();
-
 	//players draw cards
 	for (size_t i = 0; i < MAX_CARDS_IN_HAND; i++) {
-		for (size_t j = 0; j < len; j++) {
-			size_t index = (dealer + j + 1) % len;
-			if (players[index]->hand.size() < MAX_CARDS_IN_HAND) players[index]->hand << deck;
-		}
+		dealAround(true);
 	}
 
 	return 0;
@@ -44,7 +39,7 @@ int FiveCardDraw::round() {
 		for (size_t i = 0; i <len; i++) discardCards(*players[i]);
 
 		//turn
-		for (size_t i = 0; i < len; i++) dealUntilFull(*players[i]);
+		for (size_t i = 0; i < len; i++) dealUntilFull(*players[i], false);
 
 		//second betting phase
 		bet_in_turn();

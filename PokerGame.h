@@ -30,7 +30,9 @@ public:
 
 	int bet_in_turn(); 
 	int discardCards(Player& p);
-	int dealUntilFull(Player& p);
+	int dealCard(Player& p, bool visible);
+	int dealUntilFull(Player& p, bool visible);
+	int dealAround(bool visible);
 
 	/*Never subtract chips directly!!! Use payChips instead to avoid negative values*/
 	unsigned int payChips(Player& p, unsigned int amount);
