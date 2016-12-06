@@ -29,7 +29,7 @@ class Hand{
 		~Hand();
 
 		size_t size() const;
-		string toString() const;
+		string toString(bool owner) const;
 
 		vector<Card> getCards() const;
 		void pushCard(const Card& c);

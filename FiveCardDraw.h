@@ -21,15 +21,11 @@ using namespace std;
 
 class FiveCardDraw : public PokerGame {
 
-	public:
-		FiveCardDraw();
+public:
+	FiveCardDraw();
 
-		virtual int before_round();
-		virtual int round();
-
-		virtual int before_turn(Player& p);
-		virtual int turn(Player& p);
-		virtual int after_turn(Player& p);
+	virtual int before_round();
+	virtual int round();
 };
 
 #endif  //FiveCardDraw_H_

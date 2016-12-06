@@ -33,7 +33,7 @@ struct Player {
 	unsigned int chip;
 
 	Player(string filename, bool aut);
-	string toString() const;
+	string toString(bool owner) const;
 	int reset();
 };
 

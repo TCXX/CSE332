@@ -36,6 +36,7 @@ class Deck{
 		void shuffle();
 		void addCard(Card& c);
 		void standardized();
+		void flipCards(bool faceUp);
 		size_t size() const;
 		string toString() const;
 

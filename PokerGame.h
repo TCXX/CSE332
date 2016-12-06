@@ -24,10 +24,6 @@ class PokerGame : public Game {
 public:
 	PokerGame();
 
-	virtual int before_turn(Player& p) = 0;
-	virtual int turn(Player& p) = 0;
-	virtual int after_turn(Player& p) = 0;
-
 	virtual int before_round(); //pay ante + sth. different from subclass
 	virtual int round() = 0; //sth. different for every subclass
 	virtual int after_round(); //same for every subclass

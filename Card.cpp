@@ -9,6 +9,8 @@ using namespace std;
 
 //struct
 
+
+
 bool Card::operator<(const Card& c) const {
 	//compares for by rank then suit
 	return rank * 4 + suit < c.rank * 4 + c.suit;
@@ -17,5 +19,11 @@ bool Card::operator<(const Card& c) const {
 bool Card::operator==(const Card& c) const {
 	//compares for by rank then suit
 	return rank * 4 + suit == c.rank * 4 + c.suit;
+}
+
+string Card::toString(bool owner) const {
+	if ((owner == false) && (visible == false)) return "** ";
+	string str = rankName[rank - 1] + suitName[suit - 1];
+	return str;
 }
 

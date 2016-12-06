@@ -36,43 +36,25 @@ int FiveCardDraw::before_round(){
 int FiveCardDraw::round() {
 	size_t len = players.size();
 
-	//players decide whether to bet some chips or not - first phase
+	//first betting phase
 	bet_in_turn();
 
 	if (countActive() > 1) {
-		//players discard some of the five cards
-		for (size_t i = 0; i <len; i++) before_turn(*players[i]);
+		//before_turn
+		for (size_t i = 0; i <len; i++) discardCards(*players[i]);
 
-		//deal cards until each player has five cards
-		for (size_t i = 0; i < len; i++) turn(*players[i]);
+		//turn
+		for (size_t i = 0; i < len; i++) dealUntilFull(*players[i]);
 
-		//players decide whether to bet some chips or not - second phase
+		//second betting phase
 		bet_in_turn();
 	}
 
-	//print player ranks before sorting
+	//after turn
 	cout << endl;
 	for (size_t i = 0; i < len; i++) {
-		after_turn(*players[i]);
+		cout << *players[i] << endl;
 	}
 
-	return 0;
-}
-
-//A public virtual before_turn method that asks the user cards to discard and then move them to discarDeck.
-int FiveCardDraw::before_turn(Player& p) {
-	discardCards(p);
-	return 0;
-}
-
-//A public virtual turn method that deals as many as that they have discarded.
-int FiveCardDraw::turn(Player& p) {
-	dealUntilFull(p);
-	return 0;
-}
-
-//A public virtual after_turn method that prints out the player's name and the contents of their hand.
-int FiveCardDraw::after_turn(Player& p) {
-	cout << p << endl;
 	return 0;
 }

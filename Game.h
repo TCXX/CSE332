@@ -34,9 +34,7 @@ class Game {
 		static void stopGame();
 		void addPlayer(const string &name);
 		shared_ptr<Player> findPlayer(const string name);
-		virtual int before_turn(Player& p) = 0;
-		virtual int turn(Player& p) = 0;
-		virtual int after_turn(Player& p) = 0;
+
 		virtual int before_round() = 0;
 		virtual int round() = 0;
 		virtual int after_round() = 0;

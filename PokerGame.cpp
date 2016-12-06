@@ -29,7 +29,7 @@ int PokerGame::discardCards(Player& p) {
 	if (p.isFold) return 0;
 
 	cout << endl;
-	cout << p << endl;
+	cout << p.toString(true) << endl;
 	cout << "Card to discard? Enter the indices separated by space in a line. " << endl;
 
 	vector<bool> ifDelete;
@@ -161,14 +161,15 @@ int PokerGame::after_round() {
 		cout << winners[i]->name << endl;
 	}
 
-	//reset variables for the game
-	pot = 0;
-	bet = 0;
-
 	//move all cards from discardDeck to the main deck
 	while (discardDeck.size() > 0) {
 		deck.addCard(discardDeck.popCard());
 	}
+
+	//reset variables for the game
+	pot = 0;
+	bet = 0;
+	deck.flipCards(true);
 
 	//some auto players leave the game
 	autoPlayerLeave();

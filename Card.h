@@ -27,10 +27,11 @@ enum HandRank { NO_RANK, ONE_PAIR, TWO_PAIRS, THREE_OF_A_KIND, STRAIGHT, FLUSH, 
 struct Card {
 	CardSuit suit;
 	CardRank rank;
+	bool visible;
 
 	bool operator<(const Card& c) const;
 	bool operator==(const Card& c) const;
+	string toString(bool owner) const;
 };
-
 
 #endif //CARD_H_
