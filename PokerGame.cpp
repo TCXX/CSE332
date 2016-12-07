@@ -29,7 +29,7 @@ int PokerGame::discardCards(Player& p) {
 	if (p.isFold) return 0;
 
 	cout << endl;
-	cout << p.toString(true) << endl;
+	cout << p.toString(OWNER) << endl;
 	cout << "Card to discard? Enter the indices separated by space in a line. " << endl;
 
 	vector<bool> ifDelete;
@@ -67,27 +67,27 @@ int PokerGame::discardCards(Player& p) {
 }
 
 //A method that deals as many as that they have discarded.
-int PokerGame::dealUntilFull(Player& p, bool visible) {
+int PokerGame::dealUntilFull(Player& p, Visibility vis) {
 	for (size_t i = p.hand.size(); i < MAX_CARDS_IN_HAND; i++) {
-		dealCard(p, true);
+		dealCard(p, vis);
 	}
 	return 0;
 }
 
 // deal a card to each of all players a card of the specified type.
-int PokerGame::dealAround(bool visible) {
+int PokerGame::dealAround(Visibility vis) {
 	size_t len = players.size();
 	for (size_t j = 0; j < len; j++) {
 		size_t index = (dealer + j + 1) % len;
 		if (players[index]->hand.size() < MAX_CARDS_IN_HAND) {
-			dealCard(*players[index], visible);
+			dealCard(*players[index], vis);
 		}
 	}
 	return 0;
 }
 
 //deal a card to a specified player of a specified type.
-int PokerGame::dealCard(Player& p, bool visible) {
+int PokerGame::dealCard(Player& p, Visibility vis) {
 	Card c;
 	if (deck.size() == 0) {
 		if (discardDeck.size() == 0) throw NO_CARD_TO_DEAL; //when both decks are empty
@@ -98,7 +98,7 @@ int PokerGame::dealCard(Player& p, bool visible) {
 		c = deck.popCard();
 	}
 
-	c.visible = visible;
+	c.visible = vis;
 	p.hand.pushCard(c);
 
 	return 0;
@@ -133,7 +133,7 @@ int PokerGame::after_round() {
 	//print out player ranks after sorting
 	cout << endl;
 	for (size_t i = 0; i < len; i++) {
-		cout << *tempPlayers[i] << endl;
+		cout << tempPlayers[i]->toString(ADMIN) << endl;
 	}
 
 	//find winner's combo
@@ -192,7 +192,7 @@ int PokerGame::after_round() {
 	//reset variables for the game
 	pot = 0;
 	bet = 0;
-	deck.flipCards(true);
+	deck.flipCards(OWNER_CAN_SEE);
 
 	//some auto players leave the game
 	autoPlayerLeave();
@@ -330,7 +330,7 @@ unsigned int PokerGame::betChips(Player& p) {
 	int max;
 
 	cout << endl;
-	cout << p << endl;
+	cout << p.toString(OWNER) << endl;
 
 	//ask player if all-in
 	if (bet >= p.chip) {
@@ -359,8 +359,10 @@ unsigned int PokerGame::betChips(Player& p) {
 	do {
 		getline(cin, str);
 		bool findNo = (str.find("f") != string::npos) && (str.length() == 1);
-		if (findNo) {
+		if (findNo) { //player chooses to fold
 			num = 0;
+			size_t len = p.hand.size();
+			for (size_t i = 0; i < len; i++) p.hand[i].visible = NEVER_SEEN;
 			p.isFold = true;
 			break;
 		}

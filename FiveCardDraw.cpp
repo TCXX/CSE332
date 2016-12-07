@@ -21,7 +21,7 @@ int FiveCardDraw::before_round(){
 
 	//players draw cards
 	for (size_t i = 0; i < MAX_CARDS_IN_HAND; i++) {
-		dealAround(true);
+		dealAround(OWNER_CAN_SEE);
 	}
 
 	return 0;
@@ -39,7 +39,7 @@ int FiveCardDraw::round() {
 		for (size_t i = 0; i <len; i++) discardCards(*players[i]);
 
 		//turn
-		for (size_t i = 0; i < len; i++) dealUntilFull(*players[i], false);
+		for (size_t i = 0; i < len; i++) dealUntilFull(*players[i], OWNER_CAN_SEE);
 
 		//second betting phase
 		bet_in_turn();
@@ -48,7 +48,7 @@ int FiveCardDraw::round() {
 	//after turn
 	cout << endl;
 	for (size_t i = 0; i < len; i++) {
-		cout << *players[i] << endl;
+		cout << players[i]->toString(ADMIN) << endl;
 	}
 
 	return 0;

@@ -21,15 +21,18 @@ const vector<string> suitName{ "C","D","H","S" };
 enum CardSuit { NO_SUCH_SUIT, CLUBS, DIAMONDS, HEARTS, SPADES };
 enum CardRank { NO_SUCH_RANK, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, J, Q, K, A};
 
+enum Visibility {SEEN_BY_ALL, OWNER_CAN_SEE, NOT_TIL_END, NEVER_SEEN};
+enum AccessMode {OTHER, OWNER, ADMIN};
+
 //struct
 struct Card {
 	CardSuit suit;
 	CardRank rank;
-	bool visible;
+	Visibility visible;
 
 	bool operator<(const Card& c) const;
 	bool operator==(const Card& c) const;
-	string toString(bool owner) const;
+	string toString(AccessMode mode) const;
 };
 
 #endif //CARD_H_

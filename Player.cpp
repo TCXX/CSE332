@@ -35,7 +35,7 @@ Player::Player(string playername, bool aut):
 	}
 }
 
-string Player::toString(bool owner) const {
+string Player::toString(AccessMode mode) const {
 	ostringstream out = ostringstream();
 
 	//basic info
@@ -49,7 +49,7 @@ string Player::toString(bool owner) const {
 		for (int i = 0; i < len; i++) out << "**  ";
 	}
 	else {
-		out << hand.toString(owner);
+		out << hand.toString(mode);
 	}
 
 	return out.str();
@@ -62,7 +62,7 @@ int Player::reset() {
 
 //A non-member insertion operator that prints out the player's name, number of wins, and number of losses.
 ostream& operator<<(ostream& out, const Player& p) {
-	out << p.toString(false);
+	out << p.toString(OTHER);
 	return out;
 }
 

@@ -21,8 +21,10 @@ bool Card::operator==(const Card& c) const {
 	return rank * 4 + suit == c.rank * 4 + c.suit;
 }
 
-string Card::toString(bool owner) const {
-	if ((owner == false) && (visible == false)) return "** ";
+string Card::toString(AccessMode mode) const {
+	int intMode = (int)mode;
+	int intVis = (int)visible;
+	if (intVis > intMode) return "** ";
 	string str = rankName[rank - 1] + suitName[suit - 1];
 	return str;
 }

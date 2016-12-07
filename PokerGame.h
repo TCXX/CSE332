@@ -24,15 +24,13 @@ class PokerGame : public Game {
 public:
 	PokerGame();
 
-	virtual int before_round(); //pay ante + sth. different from subclass
-	virtual int round() = 0; //sth. different for every subclass
-	virtual int after_round(); //same for every subclass
+
 
 	int bet_in_turn(); 
 	int discardCards(Player& p);
-	int dealCard(Player& p, bool visible);
-	int dealUntilFull(Player& p, bool visible);
-	int dealAround(bool visible);
+	int dealCard(Player& p, Visibility vis);
+	int dealUntilFull(Player& p, Visibility vis);
+	int dealAround(Visibility vis);
 
 	/*Never subtract chips directly!!! Use payChips instead to avoid negative values*/
 	unsigned int payChips(Player& p, unsigned int amount);
@@ -50,6 +48,10 @@ protected:
 	int autoPlayerLeave();
 	vector<size_t> findAuto();
 	size_t countActive();
+
+	virtual int before_round(); //pay ante + sth. different from subclass
+	virtual int round() = 0; //sth. different for every subclass
+	virtual int after_round(); //same for every subclass
 };
 
 #endif  //PokerGame_H_

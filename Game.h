@@ -22,22 +22,28 @@ struct Player;
 class FiveCardDraw;
 
 class Game {
+		virtual int before_round() = 0;
+		virtual int round() = 0;
+		virtual int after_round() = 0;
+
 
 	protected:
 		static shared_ptr<Game> gamePtr;
 		Deck deck;
 		vector<shared_ptr<Player>> players;
+
+
 	public:
 		static shared_ptr<Game> instance();
-		size_t size(); //defined for convinience
+		size_t size() const; //number of players
 		static void startGame(const string& sofgames);
+		static void playGame();
 		static void stopGame();
 		void addPlayer(const string &name);
+		void addPlayers(vector<string> list);
+		vector<string> Game::getPlayers();
 		shared_ptr<Player> findPlayer(const string name);
 
-		virtual int before_round() = 0;
-		virtual int round() = 0;
-		virtual int after_round() = 0;
 
 };
 #endif  //GAME_H_

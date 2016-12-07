@@ -20,12 +20,12 @@ FiveCardDraw.h created by Cindy Le, Adrien Xie, and Yanni Yang
 using namespace std;
 
 class FiveCardDraw : public PokerGame {
+	virtual int before_round();
+	virtual int round();
 
 public:
 	FiveCardDraw();
 
-	virtual int before_round();
-	virtual int round();
 };
 
 #endif  //FiveCardDraw_H_

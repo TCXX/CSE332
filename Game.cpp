@@ -25,8 +25,26 @@ shared_ptr<Game> Game::instance() {
 }
 
 //Returns the number of players.
-size_t Game::size() {
+size_t Game::size() const {
 	return players.size();
+}
+
+vector<string> Game::getPlayers() {
+	size_t len = players.size();
+	vector<string> list = vector<string>();
+	for (size_t i = 0; i < len; i++) {
+		if (players[i]->isAuto) list.push_back(players[i]->name + "*");
+		else list.push_back(players[i]->name);
+	}
+	return list;
+}
+
+void Game::addPlayers(vector<string> list) {
+	size_t len = list.size();
+	for (size_t i = 0; i < len; i++) {
+		const string name = list[i];
+		addPlayer(name);
+	}
 }
 
 //A public static start_game method that dynamically allocates an instance of the FiveCardDraw class.
@@ -48,9 +66,22 @@ void Game::startGame(const string& sofgames) {
 	}
 }
 
+void Game::playGame() {
+	if (gamePtr == nullptr) {
+		throw NO_GAME_IN_PROCESS;
+	}
+	else if (gamePtr->size()<2) {
+		throw NO_PLAYERS;
+	}
+	else {
+		gamePtr->before_round();
+		gamePtr->round();
+		gamePtr->after_round();
+	}
+}
+
 //A public static stop_game method that calls delete on the static pointer and reset the static pointer.
 void Game::stopGame() {
-
 	if (gamePtr != nullptr) {
 		gamePtr.reset();
 	}

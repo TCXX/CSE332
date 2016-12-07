@@ -48,7 +48,7 @@ const vector<string> errorMsg {
 	"The player is already playing! ",
 	"No player is unfolded. ",
 	"No player wins this round. ",
-	"No player is currently in this round. ",
+	"No enough players are currently in this round. ",
 	//deck
 	"The decks have no cards to deal. "
 };

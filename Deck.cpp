@@ -105,16 +105,16 @@ void Deck::standardized() {
 		for (int j = 1; j < 14; j++) {
 			CardSuit suit = static_cast<CardSuit>(i);
 			CardRank rank = static_cast<CardRank>(j);
-			Card c = { suit, rank, true };
+			Card c = { suit, rank, OWNER_CAN_SEE};
 			addCard(c);
 		}
 	}
 	shuffle();
 }
 
-void Deck::flipCards(bool faceUp) {
+void Deck::flipCards(Visibility vis) {
 	size_t len = cards.size();
-	for (size_t i = 1; i < len; i++) cards[i].visible = faceUp;
+	for (size_t i = 1; i < len; i++) cards[i].visible = vis;
 }
 
 //A non-member insertion operator (operator<<) that prints out valid card definition strings on separate lines.

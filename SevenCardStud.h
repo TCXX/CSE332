@@ -20,12 +20,12 @@ FiveCardDraw.h created by Cindy Le, Adrien Xie, and Yanni Yang
 using namespace std;
 
 class SevenCardStud : public PokerGame {
+	virtual int before_round();
+	virtual int round();
 
 public:
 	SevenCardStud();
 
-	virtual int before_round();
-	virtual int round();
 };
 
 #endif  //SevenCardStud_H_

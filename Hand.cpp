@@ -28,7 +28,7 @@ size_t Hand::size() const {
 }
 
 //A const "as string" method that returns (by value) a C++ style string containing a space-separated sequence of valid card definition.
-string Hand::toString(bool owner) const {
+string Hand::toString(AccessMode mode) const {
 	ostringstream out = ostringstream();
 	size_t len = cards.size();
 	if (len==0) {
@@ -36,7 +36,7 @@ string Hand::toString(bool owner) const {
 	}else {
 		
 		for (size_t i = 0; i < len; i++) {
-			out << cards[i].toString(owner) << "  ";
+			out << cards[i].toString(mode) << "  ";
 		}
 		if (len == 5) {
 			int r = rankHand();
@@ -295,7 +295,7 @@ Hand& operator<<(Hand& h, Deck& d) {
 
 //A non-member insertion operator (operator<<) that prints out space-separated valid card definition strings on the same line.
 ostream& operator<<(ostream& out, const Hand& h) {
-	out<<h.toString(false);
+	out<<h.toString(OTHER);
 	return out;
 }
 
