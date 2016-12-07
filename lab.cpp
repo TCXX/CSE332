@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 	try {
 		if (argc < MIN_CMD_ARG) throw TOO_FEW_ARG;
 		
-		Game::startGame("FiveCardDraw");
+		Game::startGame("SevenCardStud");
 		shared_ptr<Game> game = Game::instance();
 
 		string playerstemp;

@@ -43,8 +43,6 @@ int SevenCardStud::round() {
 		if (countActive() < 2) break;
 	}
 
-	//FIX ME: choose five cards
-
 	//after turn
 	cout << endl;
 	for (size_t i = 0; i < len; i++) {

@@ -20,7 +20,7 @@ enum ProgramError {
 	SUCCESS,
 	UNKNOWN_ERR,
 	TOO_FEW_ARG, TOO_MANY_ARG, //cmd args
-	HAND_OVERFLOW, EMPTY_HAND, HAND_OUT_OF_RANGE, HAND_NOT_COMPLETE, //hand
+	HAND_OVERFLOW, EMPTY_HAND, HAND_OUT_OF_RANGE, HAND_NOT_COMPLETE, TOO_MANY_CARDS, SAME_CARD, //hand
 	INS_NOT_AVAIL, GAME_ALREADY_STARTED, UNKNOWN_GAME, NO_GAME_IN_PROCESS, //game
 	ALREADY_PLAYING, NO_ACTIVES, NO_WINNERS, NO_PLAYERS, //player
 	NO_CARD_TO_DEAL //deck
@@ -37,6 +37,8 @@ const vector<string> errorMsg {
 	"The deck has nothing to pop up. ",
 	"Hand's index is out of range. ",
 	"The hand contains less than five cards. ",
+	"The function only applies to five cards. ",
+	"The hand contains two cards of same suit.  ",
 	//game
 	"Instance is not available! ",
 	"Game is already started! ",

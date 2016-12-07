@@ -5,6 +5,7 @@ Game.cpp created by Cindy Le, Adrien Xie, and Yanni Yang
 #include "stdafx.h"
 #include "Game.h" 
 #include "FiveCardDraw.h"
+#include "SevenCardStud.h"
 
 using namespace std;
 
@@ -34,12 +35,16 @@ void Game::startGame(const string& sofgames) {
 	if (gamePtr!= nullptr) {
 		throw GAME_ALREADY_STARTED;
 	}
-	else if (sofgames.find("FiveCardDraw") == string::npos) {
-		throw UNKNOWN_GAME;
-	}
-	else {
+	else if (sofgames.find("FiveCardDraw") != string::npos) {
 		shared_ptr<FiveCardDraw> temp(new FiveCardDraw);
 		gamePtr = temp;
+	}
+	else if (sofgames.find("SevenCardStud") != string::npos) {
+		shared_ptr<SevenCardStud> temp(new SevenCardStud);
+		gamePtr = temp;
+	}
+	else {
+		throw UNKNOWN_GAME;
 	}
 }
 

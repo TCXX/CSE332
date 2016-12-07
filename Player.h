@@ -38,7 +38,7 @@ struct Player {
 };
 
 ostream& operator<<(ostream& out, const Player& p);
-bool handCompare(const shared_ptr<Player>& p1, const shared_ptr<Player>& p2);
+bool playerRank(const shared_ptr<Player>& p1, const shared_ptr<Player>& p2);
 
 
 #endif //PLAYER_H_

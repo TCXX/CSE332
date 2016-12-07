@@ -93,206 +93,201 @@ void Hand::pushCard(const Card& c) {
 
 //To return a number representing the hand's rank.
 int Hand::rankHand() const {
-	return (int)floor(hashHand()/1000000);
-}
-
-//To find rank for a hand, and return a 7-digit hash value for it.
-int Hand::hashHand() const  {
 	if (cards.size() < 5) throw HAND_NOT_COMPLETE;
-
-	//deal with same rank
-	bool pair[4];
-	bool three[3];
-	bool four[2];
-
-	for (size_t i = 0; i <= 3; i++) {
-		if (cards[i].rank == cards[i + 1].rank) pair[i] = true;
-		else pair[i] = false;
-	}
-
-	for (size_t i = 0; i <= 2; i++) three[i] = pair[i] && pair[i + 1];
-	for (int i = 0; i <= 1; i++) four[i] = three[i] && three[i + 1];
-
-	//deal with consecutive rank
-	bool straight = true;
-	for (size_t i = 0; i <= 3; i++) {
-		if (cards[i + 1].rank - cards[i].rank != 1) straight = false;
-	}
-
-	//deal with same suit
-	bool flush = true;
-	for (size_t i = 0; i <= 3; i++) {
-		if (cards[i + 1].suit != cards[i].suit) flush = false;
-	}
-
-	//rank the hand
-	HandRank rank;
-	vector<size_t> index(5); //specify the rule to determine orders when two hands have same rank
-
-	if (straight && flush) { //eg. 12345 all same suit
-		rank = STRAIGHT_FLUSH;
-		index = { 5, 9, 9, 9, 9 };
-	}
-	else if (four[0]) { //eg. 11112
-		rank = FOUR_OF_A_KIND;
-		index = { 3, 4, 9, 9, 9 };
-	}
-	else if (four[1]) { //eg. 12222
-		rank = FOUR_OF_A_KIND;
-		index = { 4, 0, 9, 9, 9 };
-	}
-	else if (three[0] && pair[3]) { //eg. 11122
-		rank = FULL_HOUSE;
-		index = { 2, 4, 9, 9, 9 };
-	}
-	else if (three[2] && pair[0]) { //eg. 11222
-		rank = FULL_HOUSE;
-		index = { 4, 1, 9, 9, 9 };
-	}
-	else if (flush) { //all same suit
-		rank = FLUSH;
-		index = { 4, 3, 2, 1, 0 };
-	}
-	else if (straight) { //eg. 12345
-		rank = STRAIGHT;
-		index = { 4, 3, 2, 1, 0 };
-	}
-	else if (three[0]) { //eg. 11123
-		rank = THREE_OF_A_KIND;
-		index = { 2, 4, 3, 9, 9 };
-	}
-	else if (three[1]) { //eg. 12223
-		rank = THREE_OF_A_KIND;
-		index = { 3, 4, 0, 9, 9 };
-	}
-	else if (three[2]) { //eg. 12333
-		rank = THREE_OF_A_KIND;
-		index = { 4, 1, 0, 9, 9 };
-	}
-	else if (pair[0] && pair[2]) { //eg. 11223
-		rank = TWO_PAIRS;
-		index = { 3, 1, 4, 9, 9 };
-	}
-	else if (pair[1] && pair[3]) { //eg. 12233
-		rank = TWO_PAIRS;
-		index = { 4, 2, 0, 9, 9 };
-	}
-	else if (pair[0] && pair[3]) { //eg. 11233
-		rank = TWO_PAIRS;
-		index = { 4, 1, 2, 9, 9 };
-	}
-	else if (pair[0]) { //eg. 11234
-		rank = ONE_PAIR;
-		index = { 1, 4, 3, 2, 9 };
-	}
-	else if (pair[1]) { //eg. 12234
-		rank = ONE_PAIR;
-		index = { 2, 4, 3, 0, 9 };
-	}
-	else if (pair[2]) { //eg. 12334
-		rank = ONE_PAIR;
-		index = { 3, 4, 1, 0, 9 };
-	}
-	else if (pair[3]) { //eg. 12344
-		rank = ONE_PAIR;
-		index = { 4, 2, 1, 0, 9 };
-	}
-	else {
-		rank = NO_RANK;
-		index = { 4, 3, 2, 1, 0 };
-	}
-
-	int ans = 0;
-	for (size_t i = 0; i <= 4; i++) if (index[i] <= 4) ans = ans * 13 + cards[index[i]].rank;
-	ans = rank * 1000000 + ans; //the highest digit represents rank
-	return ans;
+	return (int)floor(findMaxHash()/1000000);
 }
 
+//Recommend whether th first five cards should be discarded.
 vector<bool> Hand::discardIndex() const {
 	if (cards.size() < 5) throw HAND_NOT_COMPLETE;
+	if (cards.size() > 5) throw TOO_MANY_CARDS;
 
-	//deal with same rank
-	bool pair[4];
-	bool three[3];
-	bool four[2];
-
-	for (size_t i = 0; i <= 3; i++) {
-		if (cards[i].rank == cards[i + 1].rank) pair[i] = true;
-		else pair[i] = false;
-	}
-
-	for (size_t i = 0; i <= 2; i++) three[i] = pair[i] && pair[i + 1];
-	for (size_t i = 0; i <= 1; i++) four[i] = three[i] && three[i + 1];
-
-	//deal with consecutive rank
-	bool straight = true;
-	for (size_t i = 0; i <= 3; i++) {
-		if (cards[i + 1].rank - cards[i].rank != 1) straight = false;
-	}
-
-	//deal with same suit
-	bool flush = true;
-	for (size_t i = 0; i <= 3; i++) {
-		if (cards[i + 1].suit != cards[i].suit) flush = false;
-	}
+	int rank=HandRank();
 
 	//rank the hand
-	vector<bool> index; //card indices to discard
+	vector<bool> index = {false, false, false, false, false}; //card indices to discard
 
-	if (straight  || flush || (three[0] && pair[3]) || (three[2] && pair[0])) { 
-		index = { false, false, false, false, false };
+	if (rank==STRAIGHT || rank==FLUSH ) { 
+		//do not discard any
+		return index;
 	}
-	else if (four[0]) { //eg. 11112
-		index = {false, false, false, false, true};
-	}
-	else if (four[1]) { //eg. 12222
-		index = {true, false, false, false, false};
-	}
-	else if (three[0]) { //eg. 11123
-		index = {false, false ,false ,true ,true};
-	}
-	else if (three[1]) { //eg. 12223
-		index = {true, false, false ,false, true};
-	}
-	else if (three[2]) { //eg. 12333
-		index = {true, true, false, false, false};
-	}
-	else if (pair[0] && pair[2]) { //eg. 11223
-		index = {false, false, false, false, true};
-	}
-	else if (pair[1] && pair[3]) { //eg. 12233
-		index = {true, false, false, false, false};
-	}
-	else if (pair[0] && pair[3]) { //eg. 11233
-		index = {false, false, true, false, false};
-	}
-	else if (pair[0]) { //eg. 11234
-		index = {false,false, true, true, true};
-	}
-	else if (pair[1]) { //eg. 12234
-		index = {true, false, false, true, true};
-	}
-	else if (pair[2]) { //eg. 12334
-		index = {true, true, false ,false, true};
-	}
-	else if (pair[3]) { //eg. 12344
-		index = {true, true, true, false, false};
+
+	if (rank!=NO_RANK) {
+		//delete a card if its suit apprears only once
+		vector<size_t> freq = vector<size_t>(14);
+		for (size_t i = 0; i < 5; i++) freq[cards[i].rank]++;
+		for (size_t i = 0; i < 5; i++) {
+			if (freq[cards[i].rank] == 1) index[i] = true;
+		}
 	}
 	else { //no rank
 		if (cards[4].rank == A) { //eg. 1234A
 			index = {true, true, true, true, false};
 		} else { //eg. 12345
-			index = { true, true, true, true, true};
+			index = {true, true, true, true, true};
 		}
 	}
 
 	return index;
 }
 
+//Find the maximum rank of the hand of all possible combinations of five.
+//FIX ME: NEED MORE TESTING ON THIS!
+int Hand::findMaxHash() const {
+	size_t len = cards.size();
+	if (len < 5) throw HAND_NOT_COMPLETE;
+
+	HandRank rank = NO_RANK;
+	vector<size_t> selected = vector<size_t>(5);
+
+	// record if there is anything special
+	int maxOne = 0;
+	int maxPair = 0;
+	int maxThree = 0;
+	int maxFour = 0;
+	int straightSuit = 0; //the suit that has straight
+	
+	//count occurences of each rank and each suit
+	vector<size_t> rankFreq = vector<size_t>(14);
+	for (size_t i = 0; i < len; i++) rankFreq[cards[i].rank]++;
+	vector<size_t> suitFreq = vector<size_t>(5);
+	for (size_t i = 0; i < len; i++) suitFreq[cards[i].suit]++;
+
+	//find the highest matched level
+	for (size_t i = 1; i < 14; i++) {
+		if (rankFreq[i] > 4) throw SAME_CARD;
+		else if (rankFreq[i] == 4) maxFour = i;
+		else if (rankFreq[i] == 3) maxThree = i;
+		else if (rankFreq[i] == 2) maxPair = i;
+		else if (rankFreq[i] == 1) maxOne = i;
+	}
+
+	//deal with the suit - flush
+	int maxFlush = 0;
+	for (size_t i = 1; i <= 4; i++) {
+		if (suitFreq[i] >= 5) straightSuit = i;
+	}
+
+	//deal with the rank - straight
+	int desire = cards[len-1].rank-1;
+	size_t count = 1;
+	for (size_t i = len; i > 0; i--) {
+		if (desire == (int) cards[i-1].rank) {
+			count++;
+			desire--;
+			if (count == 5) break;
+		} else {
+			count = 1;
+			desire = cards[i-1].rank - 1;
+		}
+	}
+	if (count == 5) {
+		maxFlush = desire + 5;
+	}
+
+	//deal with the rank - straight flush
+	int maxSF = 0;
+	for (size_t j = 1; j <= 4; j++) {
+		int desire = cards[len - 1].rank - 1;
+		size_t count = 1;
+		for (size_t i = len; i > 0; i--) {
+			if ((desire == (int)cards[i - 1].rank) && (j == (int)cards[i - 1].suit)) {
+				count++;
+				desire--;
+				if (count == 5) break;
+			}
+		}
+		if ((count == 5) && (desire > maxSF)) {
+			maxSF = desire + 5;
+		}
+	}
+
+	if (maxSF>0) { //eg. 12345 of same suit
+		rank = STRAIGHT_FLUSH;
+		for (size_t i = 0; i < 5; i++) selected[i] = maxSF - i;
+	}
+	else if (maxFour>0) { //eg. 11112
+		rank = FOUR_OF_A_KIND;
+		selected[0] = maxFour;
+		rankFreq[maxFour] = 0;
+		for (size_t i = 1; i < 14; i++) {
+			if (rankFreq[i] >= 1) selected[1] = i;
+		}
+	}
+	else if (maxFlush>0) { //eg. 12345
+		rank = FLUSH;
+		for (size_t i = 0; i < 5; i++) selected[i] = maxFlush - i;
+	}
+	else if (straightSuit>0) {
+		rank = STRAIGHT;
+		for (size_t j = 0; j < 5; j++) {
+			for (size_t i = 1; i < 14; i++) {
+				if (rankFreq[i] >= 1) {
+					selected[j] = i;
+					rankFreq[i]--;
+				}
+			}
+		}
+	}
+	else if (maxThree>0) { //eg. 111XX
+		selected[0] = maxThree;
+		rankFreq[maxThree] = 0;
+		for (size_t i = 1; i < 14; i++) {
+			if (rankFreq[i] >= 2) {
+				selected[1] = i;
+				rank = FULL_HOUSE; //eg. 11122
+			}
+		}
+		if (rank != FULL_HOUSE) {
+			rank = THREE_OF_A_KIND; //eg. 11123
+			for (size_t i = 1; i < 14; i++) {
+				if (rankFreq[i] >= 1) selected[1] = i;
+			}
+			for (size_t i = 1; i < selected[1]; i++) {
+				if (rankFreq[i] >= 1) selected[2] = i;
+			}
+		}
+	}
+	else if (maxPair>0) { //eg. 11XXX
+		selected[0] = maxPair;
+		rankFreq[maxPair] = 0;
+		for (size_t i = 1; i < 14; i++) {
+			if (rankFreq[i] >= 2) {
+				selected[1] = i;
+				rank = TWO_PAIRS; //eg. 1122X
+			}
+		}
+		if (rank == TWO_PAIRS) {
+			for (size_t i = 1; i < 14; i++) {
+				if (rankFreq[i] >= 1) selected[2] = i;
+			}
+		} else {
+			rank = ONE_PAIR; //eg. 11234
+			for (size_t i = 1; i < 14; i++) {
+				if (rankFreq[i] >= 1) selected[1] = i;
+			}
+			for (size_t i = 1; i < selected[1]; i++) {
+				if (rankFreq[i] >= 1) selected[2] = i;
+			}
+			for (size_t i = 1; i < selected[2]; i++) {
+				if (rankFreq[i] >= 1) selected[3] = i;
+			}
+		}
+	}
+	else {
+		rank = NO_RANK;
+		for (size_t i = 0; i < 5; i++) selected[i] = (size_t) cards[len - i - 1].rank;
+	}
+	
+	int ans = 0;
+	for (size_t i = 0; i <= 4; i++) ans = ans * 13 + selected[i];
+	ans = rank * 1000000 + ans; //the highest digit represents rank
+	return ans;
+
+}
 
 //A non-member insertion operator (operator<<) that removes the card from the back of the deck, and adds it to the hand.
 Hand& operator<<(Hand& h, Deck& d) {
-
 	Card c = d.popCard();
 	h.pushCard(c); //pushCard() guarantees its sorted order
 	return h;
@@ -326,7 +321,7 @@ void Hand::removeCard(const size_t index) {
 
 //A "poker_rank" function judging whether the first hand ranks higher than the second hand.
 bool pokerRank(const Hand& h1, const Hand& h2) {
-	return h1.hashHand() > h2.hashHand();
+	return h1.findMaxHash() > h2.findMaxHash();
 }
 
 

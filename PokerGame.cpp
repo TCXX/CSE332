@@ -128,7 +128,7 @@ int PokerGame::after_round() {
 	for (size_t i = 0; i < len; i++) {
 		tempPlayers.push_back(players[i]);
 	}
-	sort(tempPlayers.begin(), tempPlayers.end(), handCompare);
+	sort(tempPlayers.begin(), tempPlayers.end(), playerRank); 
 
 	//print out player ranks after sorting
 	cout << endl;
@@ -145,12 +145,12 @@ int PokerGame::after_round() {
 		}
 	}
 	if (maxIndex == len) throw NO_ACTIVES;
-	int maxHash = tempPlayers[maxIndex]->hand.hashHand();
+	int maxHash = tempPlayers[maxIndex]->hand.findMaxHash();
 
 	//calculate wins and losses
 	vector<shared_ptr<Player>> winners;
 	for (size_t i = len; i > 0; i--) {
-		if ((players[i-1]->isFold == false) && (players[i-1]->hand.hashHand() == maxHash)) {
+		if ((players[i-1]->isFold == false) && (players[i-1]->hand.findMaxHash() == maxHash)) {
 			++players[i-1]->won;
 			players[i-1]->chip += players[i-1]->bet;
 			winners.push_back(players[i-1]);
@@ -290,9 +290,10 @@ int PokerGame::bet_in_turn() {
 	bool finish = false; // whether the betting phase should be terminated
 
 	do {
-		unsigned int temp = betChips(*players[i]);
-		if (temp > 0) {
-			pot += temp;
+		unsigned int before = bet;
+		pot += betChips(*players[i]);
+		unsigned int after = bet;
+		if (before!=after) { //someone raised
 			raiser = i;
 		}
 
