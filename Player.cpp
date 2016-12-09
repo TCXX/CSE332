@@ -78,6 +78,8 @@ ofstream& operator<<(ofstream& out, const Player& p) {
 bool playerRank(const shared_ptr<Player>& p1, const shared_ptr<Player>& p2) {
 	if (p1.get() == NULL) return false;
 	if (p2.get() == NULL) return true;
-	return p1->hand.findMaxHash() < p2->hand.findMaxHash();
+	if (p1->isFold) return false;
+	if (p2->isFold) return true;
+	return p1->hand.findMaxHash() > p2->hand.findMaxHash();
 }
 

@@ -132,7 +132,6 @@ vector<bool> Hand::discardIndex() const {
 }
 
 //Find the maximum rank of the hand of all possible combinations of five.
-//FIX ME: NEED MORE TESTING ON THIS!
 int Hand::findMaxHash() const {
 	size_t len = cards.size();
 	if (len < 5) throw HAND_NOT_COMPLETE;
@@ -145,8 +144,7 @@ int Hand::findMaxHash() const {
 	int maxPair = 0;
 	int maxThree = 0;
 	int maxFour = 0;
-	int straightSuit = 0; //the suit that has straight
-	
+
 	//count occurences of each rank and each suit
 	vector<size_t> rankFreq = vector<size_t>(14);
 	for (size_t i = 0; i < len; i++) rankFreq[cards[i].rank]++;
@@ -155,34 +153,35 @@ int Hand::findMaxHash() const {
 
 	//find the highest matched level
 	for (size_t i = 1; i < 14; i++) {
-		if (rankFreq[i] > 4) throw SAME_CARD;
-		else if (rankFreq[i] == 4) maxFour = i;
+		if (rankFreq[i] == 4) maxFour = i;
 		else if (rankFreq[i] == 3) maxThree = i;
 		else if (rankFreq[i] == 2) maxPair = i;
 		else if (rankFreq[i] == 1) maxOne = i;
 	}
 
 	//deal with the suit - flush
-	int maxFlush = 0;
-	for (size_t i = 1; i <= 4; i++) {
-		if (suitFreq[i] >= 5) straightSuit = i;
+	bool flush = false;
+	for (size_t j = 1; j <= 4; j++) {
+		if (suitFreq[j] >= 5) flush = true;
 	}
 
 	//deal with the rank - straight
-	int desire = cards[len-1].rank-1;
+	int maxStraight = 0;
+	int desire = cards[len - 1].rank - 1;
 	size_t count = 1;
 	for (size_t i = len; i > 0; i--) {
-		if (desire == (int) cards[i-1].rank) {
+		if (desire == (int)cards[i - 1].rank) {
 			count++;
 			desire--;
 			if (count == 5) break;
-		} else {
+		}
+		else {
 			count = 1;
-			desire = cards[i-1].rank - 1;
+			desire = cards[i - 1].rank - 1;
 		}
 	}
 	if (count == 5) {
-		maxFlush = desire + 5;
+		maxStraight = desire + 5;
 	}
 
 	//deal with the rank - straight flush
@@ -214,20 +213,29 @@ int Hand::findMaxHash() const {
 			if (rankFreq[i] >= 1) selected[1] = i;
 		}
 	}
-	else if (maxFlush>0) { //eg. 12345
-		rank = FLUSH;
-		for (size_t i = 0; i < 5; i++) selected[i] = maxFlush - i;
-	}
-	else if (straightSuit>0) {
-		rank = STRAIGHT;
-		for (size_t j = 0; j < 5; j++) {
-			for (size_t i = 1; i < 14; i++) {
-				if (rankFreq[i] >= 1) {
-					selected[j] = i;
-					rankFreq[i]--;
+	else if (flush) {
+		rank = FLUSH; //eg. sssss
+		int maxHash = 0;
+		for (size_t j = 1; j <= 5; j++) {
+			vector<int> selected_in_suit; //temp selected cards of this suit
+			size_t count = 0; //number of cards of this suit
+			for (size_t i = len; i > 0; i--) {
+				if (j == (int)cards[i - 1].suit) {
+					selected_in_suit.push_back((int)cards[i - 1].rank);
+					count++;
 				}
 			}
+			if (count >= 5) { //there exists at least five cards of this suit
+				int hash = 0;
+				for (size_t i = 0; i <= 4; i++) hash = hash * 13 + selected_in_suit[i];
+				if (hash > maxHash) maxHash = hash;
+			}
 		}
+		return FLUSH * 1000000 + maxHash;
+	}
+	else if (maxStraight>0) {
+		rank = STRAIGHT; //eg. 12345
+		for (size_t i = 0; i < 5; i++) selected[i] = maxStraight - i;
 	}
 	else if (maxThree>0) { //eg. 111XX
 		selected[0] = maxThree;
@@ -257,11 +265,13 @@ int Hand::findMaxHash() const {
 				rank = TWO_PAIRS; //eg. 1122X
 			}
 		}
+		rankFreq[selected[1]] = 0;
 		if (rank == TWO_PAIRS) {
 			for (size_t i = 1; i < 14; i++) {
 				if (rankFreq[i] >= 1) selected[2] = i;
 			}
-		} else {
+		}
+		else {
 			rank = ONE_PAIR; //eg. 11234
 			for (size_t i = 1; i < 14; i++) {
 				if (rankFreq[i] >= 1) selected[1] = i;
@@ -276,9 +286,9 @@ int Hand::findMaxHash() const {
 	}
 	else {
 		rank = NO_RANK;
-		for (size_t i = 0; i < 5; i++) selected[i] = (size_t) cards[len - i - 1].rank;
+		for (size_t i = 0; i < 5; i++) selected[i] = (size_t)cards[len - i - 1].rank;
 	}
-	
+
 	int ans = 0;
 	for (size_t i = 0; i <= 4; i++) ans = ans * 13 + selected[i];
 	ans = rank * 1000000 + ans; //the highest digit represents rank
