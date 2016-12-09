@@ -35,19 +35,20 @@ int SevenCardStud::round() {
 		//deal seven cards to each player
 		int up = faceUp[turn - 1];
 		int down = faceDown[turn - 1];
-		for (int i = 0; i < down; i++) dealAround(NOT_TIL_END);
-		for (int i = 0; i < up; i++) dealAround(OWNER_CAN_SEE);
+		for (int i = 0; i < down; i++) dealAround(OWNER_CAN_SEE);
+		for (int i = 0; i < up; i++) dealAround(SEEN_BY_ALL);
 
 		//bet
 		bet_in_turn();
+
+		printPlayers(OTHER);
+
 		if (countActive() < 2) break;
 	}
 
 	//after turn
 	cout << endl;
-	for (size_t i = 0; i < len; i++) {
-		cout << players[i]->toString(ADMIN) << endl;
-	}
+	printPlayers(ADMIN);
 
 	return 0;
 }

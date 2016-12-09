@@ -33,6 +33,7 @@ struct Card {
 	bool operator<(const Card& c) const;
 	bool operator==(const Card& c) const;
 	string toString(AccessMode mode) const;
+	bool isVisible(AccessMode mode) const;
 };
 
 #endif //CARD_H_

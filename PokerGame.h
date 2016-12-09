@@ -48,6 +48,7 @@ protected:
 	int autoPlayerLeave();
 	vector<size_t> findAuto();
 	size_t countActive();
+	int printPlayers(AccessMode mode);
 
 	virtual int before_round(); //pay ante + sth. different from subclass
 	virtual int round() = 0; //sth. different for every subclass

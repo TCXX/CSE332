@@ -41,6 +41,7 @@ class Hand{
 		vector<bool> Hand::discardIndex() const;
 		int Hand::findMaxHash() const;
 		void removeCard(const size_t index);
+		void flipCards(Visibility vis);
 
 		//operators
 		Hand& operator=(const Hand& h);

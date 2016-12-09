@@ -280,6 +280,15 @@ int PokerGame::after_round() {
 	return 0;
 }
 
+int PokerGame::printPlayers(AccessMode mode) {
+	size_t len = players.size();
+	cout << endl;
+	for (size_t i = 0; i < len; i++) {
+		cout << players[i]->toString(mode) << endl;
+	}
+	return 0;
+}
+
 int PokerGame::bet_in_turn() {
 	size_t len = players.size();
 	if (len == 0) throw NO_PLAYERS;

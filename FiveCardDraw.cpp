@@ -46,10 +46,7 @@ int FiveCardDraw::round() {
 	}
 
 	//after turn
-	cout << endl;
-	for (size_t i = 0; i < len; i++) {
-		cout << players[i]->toString(ADMIN) << endl;
-	}
+	printPlayers(ADMIN);
 
 	return 0;
 }

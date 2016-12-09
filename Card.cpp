@@ -22,10 +22,15 @@ bool Card::operator==(const Card& c) const {
 }
 
 string Card::toString(AccessMode mode) const {
-	int intMode = (int)mode;
-	int intVis = (int)visible;
-	if (intVis > intMode) return "** ";
+	if (!isVisible(mode)) return "** ";
 	string str = rankName[rank - 1] + suitName[suit - 1];
 	return str;
+}
+
+bool Card::isVisible(AccessMode mode) const {
+	int intMode = (int)mode;
+	int intVis = (int)visible;
+	if (intVis > intMode) return false;
+	return true;
 }
 

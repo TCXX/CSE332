@@ -34,13 +34,21 @@ string Hand::toString(AccessMode mode) const {
 	if (len==0) {
 		out << "The hand is empty. ";
 	}else {
-		
+		size_t hidden = 0;
 		for (size_t i = 0; i < len; i++) {
-			out << cards[i].toString(mode) << "  ";
+			if (!cards[i].isVisible(mode)) hidden++;
 		}
-		if (len == 5) {
+		for (size_t i = 0; i < len; i++) {
+			if (cards[i].isVisible(mode)) {
+				out << cards[i].toString(mode) << "  ";
+			}
+		}
+		for (size_t i = 0; i < hidden; i++) {
+			out << "**  "; 
+		}
+		if ((len>=5) && (hidden == 0)) {
 			int r = rankHand();
-			out <<"   ("<<handRankName[r]<<")";
+			out << "   (" << handRankName[r] << ")";
 		}
 	}
 
@@ -294,6 +302,11 @@ int Hand::findMaxHash() const {
 	ans = rank * 1000000 + ans; //the highest digit represents rank
 	return ans;
 
+}
+
+void Hand::flipCards(Visibility vis) {
+	size_t len = cards.size();
+	for (size_t i = 0; i < len; i++) cards[i].visible = vis;
 }
 
 //A non-member insertion operator (operator<<) that removes the card from the back of the deck, and adds it to the hand.
