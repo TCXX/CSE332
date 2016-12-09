@@ -46,6 +46,7 @@ string Hand::toString(AccessMode mode) const {
 		for (size_t i = 0; i < hidden; i++) {
 			out << "**  "; 
 		}
+		
 		if ((len>=5) && (hidden == 0)) {
 			int r = rankHand();
 			out << "   (" << handRankName[r] << ")";

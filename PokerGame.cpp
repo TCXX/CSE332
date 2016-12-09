@@ -145,32 +145,37 @@ int PokerGame::after_round() {
 		}
 	}
 	if (maxIndex == len) throw NO_ACTIVES;
-	int maxHash = tempPlayers[maxIndex]->hand.findMaxHash();
+	
 
 	//calculate wins and losses
 	vector<shared_ptr<Player>> winners;
-	for (size_t i = len; i > 0; i--) {
-		if ((players[i-1]->isFold == false) && (players[i-1]->hand.findMaxHash() == maxHash)) {
-			++players[i-1]->won;
-			players[i-1]->chip += players[i-1]->bet;
-			winners.push_back(players[i-1]);
-		}
-		else {
-			++players[i-1]->lost;
-			pot += players[i-1]->bet;
-		}
+	if(countActive()>1){
+		int maxHash = tempPlayers[maxIndex]->hand.findMaxHash();
+		for (size_t i = len; i > 0; i--) {
+			if ((players[i-1]->isFold == false) && (players[i-1]->hand.findMaxHash() == maxHash)) {
+				++players[i-1]->won;
+				//players[i-1]->chip += players[i-1]->bet;
+				winners.push_back(players[i-1]);
+			}
+			else {
+				++players[i-1]->lost;
+				//pot += players[i-1]->bet;
+			}
 
-		//reset variables for each player
-		players[i-1]->bet = 0;
-		players[i-1]->isFold = false;
+			//reset variables for each player
+			players[i-1]->bet = 0;
+			players[i-1]->isFold = false;
 
-		//move cards from players to the main deck
-		for (size_t j = players[i-1]->hand.size(); j > 0; j--) {
-			deck.addCard(players[i-1]->hand[j-1]);
-			players[i-1]->hand.removeCard(j-1);
+			//move cards from players to the main deck
+			for (size_t j = players[i-1]->hand.size(); j > 0; j--) {
+				deck.addCard(players[i-1]->hand[j-1]);
+				players[i-1]->hand.removeCard(j-1);
+			}
 		}
 	}
-
+	else {
+		winners.push_back(tempPlayers[maxIndex]);
+	}
 	//calculate number of winners
 	size_t numOfWinners = winners.size();
 	if (numOfWinners == 0) throw NO_WINNERS;
@@ -248,6 +253,8 @@ int PokerGame::after_round() {
 			}
 		}
 
+		quitIndex = -1;
+		
 	} while (!findNo);
 
 	//ask whether to join the game
@@ -300,7 +307,7 @@ int PokerGame::bet_in_turn() {
 
 	do {
 		unsigned int before = bet;
-		pot += betChips(*players[i]);
+		pot+=betChips(*players[i]);
 		unsigned int after = bet;
 		if (before!=after) { //someone raised
 			raiser = i;
@@ -312,6 +319,12 @@ int PokerGame::bet_in_turn() {
 		if (i == raiser) finish = true;
 
 	} while (!finish); // two breaks
+
+	unsigned int num = 0;
+	cout << endl;
+	cout << "Pot: " << pot << endl;
+	cout << num - 1 << endl;
+	cout << endl;
 
 	return 0;
 }
@@ -335,28 +348,39 @@ unsigned int PokerGame::betChips(Player& p) {
 	if (p.isFold) return 0;
 
 	//range for the number of chips valid to bet
-	int min = bet;
+	int min;
 	int max;
 
 	cout << endl;
 	cout << p.toString(OWNER) << endl;
 
 	//ask player if all-in
-	if (bet >= p.chip) {
+	if (bet-p.bet >= p.chip) {
 		cout << "Please enter '" << p.chip << "' for ALL-IN, or 'f' for FOLD: " << endl;
+		min = p.chip;
 		max = p.chip;
 		//no one has bet yet
 	}
 	else if (bet == 0) {
-		max = 2;
-		cout << "Please enter '0' for CHECK, '1' or '2' for BET, or 'f' for FOLD: " << endl;
+		min = 0;
+		if (p.chip >= 2) {
+			max = 2;
+			cout << "Please enter '0' for CHECK, '1' or '2' for BET, or 'f' for FOLD: " << endl;
+		}
+		else {
+			max = p.chip;
+			cout << "Please enter '0' for CHECK, '1' for BET, or 'f' for FOLD: " << endl;
+		}
+		
 	}
 	//someone has bet already
-	else if (bet + 1 >= p.chip) {
+	else if (bet - p.bet + 1 >= p.chip) {
+		min = bet;
 		max = bet + 1;
 		cout << "Please enter " << bet << " for CALL, '" << bet + 1 << " for RAISE, or 'f' for FOLD: " << endl;
 	}
 	else {
+		min = bet;
 		max = bet + 2;
 		cout << "Please enter " << bet << " for CALL, '" << bet + 1 << "' or '" << bet + 2 << "' for RAISE, or 'f' for FOLD: " << endl;
 	}
@@ -369,7 +393,7 @@ unsigned int PokerGame::betChips(Player& p) {
 		getline(cin, str);
 		bool findNo = (str.find("f") != string::npos) && (str.length() == 1);
 		if (findNo) { //player chooses to fold
-			num = 0;
+			num = bet;
 			size_t len = p.hand.size();
 			for (size_t i = 0; i < len; i++) p.hand[i].visible = NEVER_SEEN;
 			p.isFold = true;
@@ -381,8 +405,11 @@ unsigned int PokerGame::betChips(Player& p) {
 	} while (num < min || num > max);
 
 	unsigned int numToBet = (unsigned int)num;
-	if (numToBet > bet) bet = numToBet;
-	return numToBet;
+	unsigned int due = numToBet - p.bet; //extra chips to pay
+	p.bet += payChips(p, due);
+	bet = numToBet;
+	
+	return due;
 }
 
 //Check for autoplayers whether each of them leaves the game.
