@@ -153,29 +153,24 @@ int PokerGame::after_round() {
 	if(countActive()>1){
 		int maxHash = tempPlayers[maxIndex]->hand.findMaxHash();
 		for (size_t i = len; i > 0; i--) {
-			if ((players[i-1]->isFold == false) && (players[i-1]->hand.findMaxHash() == maxHash)) {
-				++players[i-1]->won;
+			if ((players[i - 1]->isFold == false) && (players[i - 1]->hand.findMaxHash() == maxHash)) {
+				++players[i - 1]->won;
 				//players[i-1]->chip += players[i-1]->bet;
-				winners.push_back(players[i-1]);
+				winners.push_back(players[i - 1]);
 			}
 			else {
-				++players[i-1]->lost;
+				++players[i - 1]->lost;
 				//pot += players[i-1]->bet;
 			}
 
 			//reset variables for each player
-			players[i-1]->bet = 0;
-			players[i-1]->isFold = false;
-
-			//move cards from players to the main deck
-			for (size_t j = players[i-1]->hand.size(); j > 0; j--) {
-				deck.addCard(players[i-1]->hand[j-1]);
-				players[i-1]->hand.removeCard(j-1);
-			}
+			players[i - 1]->bet = 0;
+			players[i - 1]->hand = Hand();
+			players[i - 1]->isFold = false;
 		}
 	}
 	else {
-		winners.push_back(tempPlayers[maxIndex]); //fix me
+		winners.push_back(tempPlayers[maxIndex]);
 	}
 	//calculate number of winners
 	size_t numOfWinners = winners.size();
@@ -190,25 +185,22 @@ int PokerGame::after_round() {
 		cout << winners[i]->name << endl;
 	}
 
-	//move all cards from discardDeck to the main deck
-	while (discardDeck.size() > 0) {
-		deck.addCard(discardDeck.popCard());
-	}
-
 	//reset variables for the game
 	pot = 0;
 	bet = 0;
-	deck.flipCards(OWNER_CAN_SEE);
+	deck = Deck();
+	discardDeck = Deck();
+	deck.standardized(); //52 cards
+
+	//ask players who have zero chips
+	CheckChips();
+	len = players.size();
 
 	//save the game
 	saveToFile();
 
 	//some auto players leave the game
 	autoPlayerLeave();
-
-	//ask players who have zero chips
-	CheckChips();
-	len = players.size();
 
 	//ask the rest of the players whether to leave the game
 	string checktemp;
@@ -348,7 +340,7 @@ unsigned int PokerGame::betChips(Player& p) {
 	bool changeBet = true;
 
 	cout << endl;
-	cout << p.toString(OWNER) << " bet" << bet << endl;
+	cout << p.toString(OWNER) << endl;
 
 	//skip player without chips
 	if (p.chip == 0) {
@@ -371,8 +363,8 @@ unsigned int PokerGame::betChips(Player& p) {
 	}
 	//ask player if all-in
 	else if (bet >= p.chip+p.bet) {
-		min = p.chip;
-		max = p.chip;
+		min = p.chip + p.bet;
+		max = min;
 		changeBet = false;
 		cout << "Please enter '" << p.chip + p.bet << "' for ALL-IN, or 'f' for FOLD: " << endl;
 	}
