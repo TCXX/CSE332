@@ -106,11 +106,12 @@ Error Code
 11 Game is already started!
 12 Unknown game! 
 13 No game is currently in process! 
-14 The player is already playing! 
-15 No player is unfolded.
-16 No player wins this round.
-17 No enough players are currently in this round.
-18 The decks have no cards to deal.
+14 There is an issue with the pot. 
+15 The player is already playing! 
+16 No player is unfolded.
+17 No player wins this round.
+18 No enough players are currently in this round.
+19 The decks have no cards to deal.
 
 =======================================
 Extra Credit
