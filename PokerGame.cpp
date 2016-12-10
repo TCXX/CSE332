@@ -361,7 +361,7 @@ unsigned int PokerGame::betChips(Player& p) {
 	bool changeBet = true;
 
 	cout << endl;
-	cout << p.toString(OWNER) << "bet " << bet << endl;
+	cout << p.toString(OWNER) << endl;
 
 	//skip player without chips
 	if (p.chip == 0) {
