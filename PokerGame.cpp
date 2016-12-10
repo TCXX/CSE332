@@ -107,9 +107,10 @@ int PokerGame::dealCard(Player& p, Visibility vis) {
 //A public virtual before_round method that shuffles and then deals one card at a time from the main deck.
 int PokerGame::before_round() {
 	deck.shuffle();
-	size_t len = players.size();
+	CheckChips();
 
 	// each player place an ante of one chip to the pot
+	size_t len = players.size();
 	for (size_t i = 0; i < len; i++) {
 		pot += payChips(*players[i], ante);
 	}
@@ -138,9 +139,9 @@ int PokerGame::after_round() {
 
 	//find winner's combo
 	size_t maxIndex = len; //invalid value to indicate undefined
-	for (size_t i = len; i > 0; i--) {
-		if (tempPlayers[i-1]->isFold == false) {
-			maxIndex = i-1;
+	for (size_t i = 0; i < len; i++) {
+		if (tempPlayers[i]->isFold == false) {
+			maxIndex = i;
 			break;
 		}
 	}
@@ -174,7 +175,7 @@ int PokerGame::after_round() {
 		}
 	}
 	else {
-		winners.push_back(tempPlayers[maxIndex]);
+		winners.push_back(tempPlayers[maxIndex]); //fix me
 	}
 	//calculate number of winners
 	size_t numOfWinners = winners.size();
@@ -199,19 +200,15 @@ int PokerGame::after_round() {
 	bet = 0;
 	deck.flipCards(OWNER_CAN_SEE);
 
+	//save the game
+	saveToFile();
+
 	//some auto players leave the game
 	autoPlayerLeave();
 
 	//ask players who have zero chips
-	for (size_t i = 0; i < len; i++) {
-		if (players[i]->chip == 0) {
-			string quitName = players[i]->name;
-			//re-add the player
-			players.erase(players.begin() + i);
-			addPlayer(quitName); //where zero-chip condition is checked
-		}
-
-	}
+	CheckChips();
+	len = players.size();
 
 	//ask the rest of the players whether to leave the game
 	string checktemp;
@@ -287,7 +284,7 @@ int PokerGame::after_round() {
 	return 0;
 }
 
-int PokerGame::printPlayers(AccessMode mode) {
+int Game::printPlayers(AccessMode mode) {
 	size_t len = players.size();
 	cout << endl;
 	for (size_t i = 0; i < len; i++) {
@@ -320,10 +317,6 @@ int PokerGame::bet_in_turn() {
 
 	} while (!finish); // two breaks
 
-	unsigned int num = 0;
-	cout << endl;
-	cout << "Pot: " << pot << endl;
-	cout << num - 1 << endl;
 	cout << endl;
 
 	return 0;
@@ -351,17 +344,20 @@ unsigned int PokerGame::betChips(Player& p) {
 	int min;
 	int max;
 
-	cout << endl;
-	cout << p.toString(OWNER) << endl;
+	//whether player's bet can affect current bet
+	bool changeBet = true;
 
-	//ask player if all-in
-	if (bet-p.bet >= p.chip) {
-		cout << "Please enter '" << p.chip << "' for ALL-IN, or 'f' for FOLD: " << endl;
-		min = p.chip;
-		max = p.chip;
-		//no one has bet yet
+	cout << endl;
+	cout << p.toString(OWNER) << " bet" << bet << endl;
+
+	//skip player without chips
+	if (p.chip == 0) {
+		cout << "Run out of chips! " << endl;
+		return 0;
 	}
-	else if (bet == 0) {
+
+
+	if (bet == 0) {
 		min = 0;
 		if (p.chip >= 2) {
 			max = 2;
@@ -372,6 +368,13 @@ unsigned int PokerGame::betChips(Player& p) {
 			cout << "Please enter '0' for CHECK, '1' for BET, or 'f' for FOLD: " << endl;
 		}
 		
+	}
+	//ask player if all-in
+	else if (bet >= p.chip+p.bet) {
+		min = p.chip;
+		max = p.chip;
+		changeBet = false;
+		cout << "Please enter '" << p.chip + p.bet << "' for ALL-IN, or 'f' for FOLD: " << endl;
 	}
 	//someone has bet already
 	else if (bet - p.bet + 1 >= p.chip) {
@@ -394,6 +397,7 @@ unsigned int PokerGame::betChips(Player& p) {
 		bool findNo = (str.find("f") != string::npos) && (str.length() == 1);
 		if (findNo) { //player chooses to fold
 			num = bet;
+			changeBet = false;
 			size_t len = p.hand.size();
 			for (size_t i = 0; i < len; i++) p.hand[i].visible = NEVER_SEEN;
 			p.isFold = true;
@@ -405,76 +409,15 @@ unsigned int PokerGame::betChips(Player& p) {
 	} while (num < min || num > max);
 
 	unsigned int numToBet = (unsigned int)num;
-	unsigned int due = numToBet - p.bet; //extra chips to pay
+	unsigned int due;
+	if (numToBet > p.bet) {
+		due = numToBet - p.bet; //extra chips to pay
+	}else {
+		due = numToBet;
+	}
+	
 	p.bet += payChips(p, due);
-	bet = numToBet;
+	if (changeBet) bet = numToBet;
 	
 	return due;
-}
-
-//Check for autoplayers whether each of them leaves the game.
-int PokerGame::autoPlayerLeave() {
-	vector<size_t> autoPlayers = findAuto();
-	size_t numAuto = autoPlayers.size();
-	size_t numPlayers = players.size();
-	unsigned int leaveNum;
-	string name;
-
-	//immediate update associated files
-	ofstream output;
-	for (size_t i = 0; i < numPlayers; i++) {
-		name = (*players[i]).name;
-		if (find(autoPlayers.begin(), autoPlayers.end(), i) != autoPlayers.end()) {
-			name = name.substr(0, name.size() - 1);
-		}
-		output.close();
-		output.open(name + ".txt");
-		output << *players[i];
-	}
-
-	//auto players leave with probablity
-	for (size_t i = numAuto; i > 0; i--) {
-		leaveNum = rand() % 100;
-		if (autoPlayers[i-1] == 0) { //the last place
-			if (leaveNum < 90) {
-				players.erase(players.begin() + autoPlayers[i-1]);
-			}
-		}
-		else if (autoPlayers[i-1] == numPlayers) { //the first place
-			if (leaveNum < 10) {
-				players.erase(players.begin() + autoPlayers[i-1]);
-			}
-		}
-		else {
-			if (leaveNum < 50) { //otherwise
-				players.erase(players.begin() + autoPlayers[i-1]);
-			}
-		}
-
-	}
-
-	return 0;
-}
-
-//Return a list of all auto players.
-vector<size_t> PokerGame::findAuto() {
-	size_t currentPlayerNum = players.size();
-	vector<size_t> autoPlayers;
-	for (size_t i = 0; i < currentPlayerNum; i++) {
-		char last = (*players[i]).name.back();
-		if (last == '*') {
-			autoPlayers.push_back(i);
-		}
-	}
-	return autoPlayers;
-}
-
-//Count number of active players who have not folded.
-size_t PokerGame::countActive() {
-	size_t numPlayers = players.size();
-	size_t active = 0;
-	for (size_t i = 0; i < numPlayers; i++) {
-		if (players[i]->isFold == false) active++;
-	}
-	return active;
 }

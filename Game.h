@@ -43,6 +43,13 @@ class Game {
 		void addPlayers(vector<string> list);
 		vector<string> Game::getPlayers();
 		shared_ptr<Player> findPlayer(const string name);
+		void CheckChips();
+
+		int autoPlayerLeave();
+		int saveToFile();
+		vector<size_t> findAuto();
+		size_t countActive();
+		int printPlayers(AccessMode mode);
 
 
 };

@@ -105,20 +105,27 @@ void Game::addPlayer(const string &name) {
 		throw ALREADY_PLAYING;
 	}
 	else {
-		players.push_back(make_shared<Player>(namePrefix, isAuto));
+		Player temp(namePrefix, isAuto);
+		players.push_back(make_shared<Player>(temp));
 	}
-	if (players[players.size()-1]->chip == 0) { //the newly added player has no chips
-		string ans;
-		cout << "Player " << namePrefix << " has no chips. Reset? (yes/no) " << endl;
-		do {
-			getline(cin, ans);
-			transform(ans.begin(), ans.end(), ans.begin(), ::tolower);
-		} while (ans!="yes" && ans !="no");
-		if (ans == "no") {
-			players.erase(players.begin() + players.size() - 1);
-		}
-		else {
-			players[players.size() - 1]->reset();
+}
+
+void Game::CheckChips() {
+	size_t len = players.size();
+	for (size_t i = len; i > 0; i--) {
+		if (players[i-1]->chip == 0) { //the newly added player has no chips
+			string ans;
+			cout << "Player " << players[i-1]->name << " has no chips. Reset? (yes/no) " << endl;
+			do {
+				getline(cin, ans);
+				transform(ans.begin(), ans.end(), ans.begin(), ::tolower);
+			} while (ans != "yes" && ans != "no");
+			if (ans == "no") {
+				players.erase(players.begin() + i-1);
+			}
+			else {
+				players[i-1]->reset();
+			}
 		}
 	}
 }
@@ -132,3 +139,80 @@ shared_ptr<Player> Game::findPlayer(const string name) {
 	}
 	return nullptr;
 }
+
+
+//Check for autoplayers whether each of them leaves the game.
+int Game::autoPlayerLeave() {
+	vector<size_t> autoPlayers = findAuto();
+	size_t numAuto = autoPlayers.size();
+	size_t numPlayers = players.size();
+	unsigned int leaveNum;
+
+	//auto players leave with probablity
+	for (size_t i = numAuto; i > 0; i--) {
+		leaveNum = rand() % 100;
+		if (autoPlayers[i - 1] == 0) { //the last place
+			if (leaveNum < 90) {
+				players.erase(players.begin() + autoPlayers[i - 1]);
+			}
+		}
+		else if (autoPlayers[i - 1] == numPlayers) { //the first place
+			if (leaveNum < 10) {
+				players.erase(players.begin() + autoPlayers[i - 1]);
+			}
+		}
+		else {
+			if (leaveNum < 50) { //otherwise
+				players.erase(players.begin() + autoPlayers[i - 1]);
+			}
+		}
+
+	}
+
+	return 0;
+}
+
+//Return a list of all auto players.
+vector<size_t> Game::findAuto() {
+	size_t len = players.size();
+	vector<size_t> autoPlayers;
+	for (size_t i = 0; i < len; i++) {
+		char last = (*players[i]).name.back();
+		if (last == '*') {
+			autoPlayers.push_back(i);
+		}
+	}
+	return autoPlayers;
+}
+
+//Count number of active players who have not folded.
+size_t Game::countActive() {
+	size_t numPlayers = players.size();
+	size_t active = 0;
+	for (size_t i = 0; i < numPlayers; i++) {
+		if (players[i]->isFold == false) active++;
+	}
+	return active;
+}
+
+int Game::saveToFile() {
+	//immediate update associated files
+	size_t len = players.size();
+	vector<size_t> autoPlayers = findAuto();
+	ofstream output;
+	for (size_t i = 0; i < len; i++) {
+		string name = (*players[i]).name;
+		if (find(autoPlayers.begin(), autoPlayers.end(), i) != autoPlayers.end()) {
+			name = name.substr(0, name.size() - 1);
+		}
+		output.close();
+		output.open(name + ".txt");
+		output << (*players[i]).name << endl;
+		output << (*players[i]).won << endl;
+		output << (*players[i]).lost << endl;
+		output << (*players[i]).chip << endl;
+	}
+
+	return 0;
+}
+

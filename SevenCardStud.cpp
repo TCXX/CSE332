@@ -27,8 +27,8 @@ int SevenCardStud::round() {
 	size_t len = players.size();
 
 	//specify number of cards to deal for each type
-	vector<int> faceUp = { 2, 1, 1, 1, 0 };
-	vector<int> faceDown = { 1, 0, 0, 0, 1 };
+	vector<int> faceUp = { 1, 1, 1, 1, 0 };
+	vector<int> faceDown = { 2, 0, 0, 0, 1 };
 
 	
 	for (int turn = 1; turn <= 5; turn++) {

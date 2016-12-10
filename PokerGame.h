@@ -45,11 +45,6 @@ protected:
 	unsigned int pot;
 	unsigned int bet; // the cumulative amount players have bet during that phase
 
-	int autoPlayerLeave();
-	vector<size_t> findAuto();
-	size_t countActive();
-	int printPlayers(AccessMode mode);
-
 	virtual int before_round(); //pay ante + sth. different from subclass
 	virtual int round() = 0; //sth. different for every subclass
 	virtual int after_round(); //same for every subclass
