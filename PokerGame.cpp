@@ -104,6 +104,25 @@ int PokerGame::dealCard(Player& p, Visibility vis) {
 	return 0;
 }
 
+//
+int PokerGame::dealSameToAll(Visibility vis) {
+	Card c;
+	if (deck.size() == 0) {
+		if (discardDeck.size() == 0) throw NO_CARD_TO_DEAL; //when both decks are empty
+		discardDeck.shuffle();
+		c = discardDeck.popCard(); //deal from the discarded when no card in the main deck
+	}
+	else {
+		c = deck.popCard();
+	}
+
+	c.visible = vis;
+	size_t len = players.size();
+	for (size_t i = 0; i < len; i++) players[i]->hand.pushCard(c);
+
+	return 0;
+}
+
 //A public virtual before_round method that shuffles and then deals one card at a time from the main deck.
 int PokerGame::before_round() {
 	deck.shuffle();

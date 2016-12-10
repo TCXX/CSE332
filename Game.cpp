@@ -6,6 +6,7 @@ Game.cpp created by Cindy Le, Adrien Xie, and Yanni Yang
 #include "Game.h" 
 #include "FiveCardDraw.h"
 #include "SevenCardStud.h"
+#include "TexasHoldEm.h"
 
 using namespace std;
 
@@ -59,6 +60,10 @@ void Game::startGame(const string& sofgames) {
 	}
 	else if (sofgames.find("SevenCardStud") != string::npos) {
 		shared_ptr<SevenCardStud> temp(new SevenCardStud);
+		gamePtr = temp;
+	}
+	else if (sofgames.find("TexasHoldEm") != string::npos) {
+		shared_ptr<TexasHoldEm> temp(new TexasHoldEm);
 		gamePtr = temp;
 	}
 	else {

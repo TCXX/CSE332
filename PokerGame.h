@@ -31,6 +31,7 @@ public:
 	int dealCard(Player& p, Visibility vis);
 	int dealUntilFull(Player& p, Visibility vis);
 	int dealAround(Visibility vis);
+	int dealSameToAll(Visibility vis);
 
 	/*Never subtract chips directly!!! Use payChips instead to avoid negative values*/
 	unsigned int payChips(Player& p, unsigned int amount);
