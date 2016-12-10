@@ -3,11 +3,9 @@ Deck.h created by Cindy Le, Adrien Xie, and Yanni Yang
 */
 
 #pragma once
-//To avoid multiple inclusion
 #ifndef DECK_H_
 #define DECK_H_
 
-//#include "stdafx.h"
 #include "Card.h"
 #include "Hand.h"
 
@@ -26,10 +24,10 @@ Deck.h created by Cindy Le, Adrien Xie, and Yanni Yang
 using namespace std;
 class Hand;
 
+//A class that manages a deck of cards.
 class Deck{
 	public:
 		Deck();
-		~Deck();
 
 		vector<Card> getCards() const;
 		Card popCard();

@@ -3,7 +3,6 @@ Hand.h created by Cindy Le, Adrien Xie, and Yanni Yang
 */
 
 #pragma once
-//To avoid multiple inclusion
 #ifndef HAND_H_
 #define HAND_H_
 
@@ -21,16 +20,16 @@ using namespace std;
 class Deck;
 struct Player;
 
+//hand rank
 enum HandRank { NO_RANK, ONE_PAIR, TWO_PAIRS, THREE_OF_A_KIND, STRAIGHT, FLUSH, FULL_HOUSE, FOUR_OF_A_KIND, STRAIGHT_FLUSH };
 const vector<string> handRankName{ "No Rank", "One Pair", "Two Pairs", "Three of a Kind",
 								   "Straight", "Flush", "Full House", "Four of a Kind", "Straight Flush" };
 
-//Declare and define a class to represent a card player's hand of cards.
+//A class that represents a card player's hand of cards.
 class Hand{
 	public:
 		Hand() = default;
 		Hand(const Hand& h);
-		~Hand();
 
 		size_t size() const;
 		string toString(AccessMode mode) const;
@@ -48,7 +47,6 @@ class Hand{
 		bool operator==(const Hand& h) const;
 		bool operator<(const Hand& h) const;
 		Card& operator[] (const size_t index);
-
 	
 	private:
 		vector<Card> cards;
@@ -58,6 +56,5 @@ class Hand{
 Hand& operator<<(Hand& h, Deck& d);
 ostream& operator<<(ostream& out, const Hand& h);
 bool pokerRank(const Hand& h1, const Hand& h2);
-
 
 #endif //HAND_H_

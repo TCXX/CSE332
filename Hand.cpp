@@ -7,27 +7,24 @@ Hand.cpp created by Cindy Le, Adrien Xie, and Yanni Yang
 
 using namespace std;
 
-//A copy constructor that takes a reference to another const hand object and initializes itself to contain the same sequence.
+//A copy constructor that initializes itself to contain the same sequence of cards.
 Hand::Hand(const Hand& h) {
 	cards = h.getCards();
 }
 
 //A destructor: the compiler-supplied destructor is sufficient.
-Hand::~Hand() {
-	//No further action is needed as of now, therefore leaves the destructor for future implementation
-}
 
-//A const "get cards" method that returns the cards of the hand in the container
+//Return the card content of the hand.
 vector<Card> Hand::getCards() const {
 	return cards;
 }
 
-//A const "size" method that returns the number of elements in the container member variable.
+//Return the number of cards.
 size_t Hand::size() const {
 	return cards.size();
 }
 
-//A const "as string" method that returns (by value) a C++ style string containing a space-separated sequence of valid card definition.
+//Return a space-separated sequence of cards if possible.
 string Hand::toString(AccessMode mode) const {
 	ostringstream out = ostringstream();
 	size_t len = cards.size();
@@ -57,7 +54,7 @@ string Hand::toString(AccessMode mode) const {
 }
 
 
-//An assignment operator that clears out existing cards and updates itself to contain the same sequence of cards as in the passed object.
+//An assignment operator that updates itself to contain the given sequence of cards.
 Hand& Hand::operator=(const Hand& h) {
 	if (cards!=h.getCards()) {
 		cards.clear();
@@ -67,7 +64,7 @@ Hand& Hand::operator=(const Hand& h) {
 	return *this;
 }
 
-//A const equivalence operator that returns true if and only if exactly the same sequence of cards appears in both objects.
+//A const equivalence operator that returns true if and only if exactly the same sequence of cards in both hands.
 bool Hand::operator==(const Hand& h) const {
 	size_t len = size();
 	vector<Card> temp = h.getCards();
@@ -82,7 +79,7 @@ bool Hand::operator==(const Hand& h) const {
 	return true;
 }
 
-//A const less than operator judging whether the hand should appear before the given hand according to a lexical (phone book style) ordering.
+//A const less than operator judging whether the hand should appear before the given hand.
 bool Hand::operator<(const Hand& h) const {
 	vector<Card> c = h.getCards();
 	size_t len1 = cards.size();
@@ -94,19 +91,19 @@ bool Hand::operator<(const Hand& h) const {
 	return len1 < len2;
 }
 
-//To add the given card to the hand.
+//Add given card to the hand.
 void Hand::pushCard(const Card& c) {
 	cards.push_back(c);
 	sort(cards.begin(), cards.end(), less<Card>());
 }
 
-//To return a number representing the hand's rank.
+//Return a number based on hand's rank and content.
 int Hand::rankHand() const {
 	if (cards.size() < 5) throw HAND_NOT_COMPLETE;
 	return (int)floor(findMaxHash()/1000000);
 }
 
-//Recommend whether th first five cards should be discarded.
+//Recommend whether to discard cards. Only works for a hand with five cards.
 vector<bool> Hand::discardIndex() const {
 	if (cards.size() < 5) throw HAND_NOT_COMPLETE;
 	if (cards.size() > 5) throw TOO_MANY_CARDS;
@@ -122,7 +119,7 @@ vector<bool> Hand::discardIndex() const {
 	}
 
 	if (rank!=NO_RANK) {
-		//delete a card if its suit apprears only once
+		//discard a card if its suit apprears only once
 		vector<size_t> freq = vector<size_t>(14);
 		for (size_t i = 0; i < 5; i++) freq[cards[i].rank]++;
 		for (size_t i = 0; i < 5; i++) {
@@ -305,19 +302,20 @@ int Hand::findMaxHash() const {
 
 }
 
+//Flip all cards in hand to given visibility.
 void Hand::flipCards(Visibility vis) {
 	size_t len = cards.size();
 	for (size_t i = 0; i < len; i++) cards[i].visible = vis;
 }
 
-//A non-member insertion operator (operator<<) that removes the card from the back of the deck, and adds it to the hand.
+//A non-member insertion operator that removes the card from the back of the deck, and adds it to the hand.
 Hand& operator<<(Hand& h, Deck& d) {
 	Card c = d.popCard();
-	h.pushCard(c); //pushCard() guarantees its sorted order
+	h.pushCard(c);
 	return h;
 }
 
-//A non-member insertion operator (operator<<) that prints out space-separated valid card definition strings on the same line.
+//A non-member insertion operator that prints out space-separated card content.
 ostream& operator<<(ostream& out, const Hand& h) {
 	out<<h.toString(OTHER);
 	return out;
@@ -333,7 +331,7 @@ Card& Hand::operator[](const size_t index) {
 	}
 }
 
-//A remove_card method that removes the card at that position in the hand. 
+//Remove the card at given position in the hand. 
 void Hand::removeCard(const size_t index) {
 	if (index >= 0 && index < cards.size()) {
 		cards.erase(cards.begin() + index);
@@ -343,7 +341,7 @@ void Hand::removeCard(const size_t index) {
 	}
 }
 
-//A "poker_rank" function judging whether the first hand ranks higher than the second hand.
+//Return whether the first hand ranks higher than the second.
 bool pokerRank(const Hand& h1, const Hand& h2) {
 	return h1.findMaxHash() > h2.findMaxHash();
 }

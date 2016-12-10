@@ -2,24 +2,21 @@
 FiveCardDraw.cpp created by Cindy Le, Adrien Xie, and Yanni Yang
 */
 
-
 #include "stdafx.h"
 #include "FiveCardDraw.h"
 #include "stdlib.h"
 
-//#define cout std::cout //cout is not ambiguous
-
 using namespace std;
 
-//A default constructor for fiveCardDraw that initializes dealer to be the first person and discard to be empty. 
+//Constructor 
 FiveCardDraw::FiveCardDraw() : PokerGame() {
 	MAX_CARDS_IN_HAND = 5;
 }
 
+//Deal five private cards to every player.
 int FiveCardDraw::before_round(){
 	PokerGame::before_round();
 
-	//players draw cards
 	for (size_t i = 0; i < MAX_CARDS_IN_HAND; i++) {
 		dealAround(OWNER_CAN_SEE);
 	}
@@ -27,7 +24,7 @@ int FiveCardDraw::before_round(){
 	return 0;
 }
 
-//A public virtual round method that iterates through the players calling their turn method and then their after_turn method.
+//Iterate through the players calling their turn method and then their after_turn method.
 int FiveCardDraw::round() {
 	size_t len = players.size();
 

@@ -6,26 +6,24 @@ lab.h created by Cindy Le, Adrien Xie, and Yanni Yang
 #ifndef LAB_H_
 #define LAB_H_
 
-//#include "stdafx.h"  
-//#include "Game.h"
-//#include "FiveCardDraw.h"
-
 #include <vector>
 #include <string>
 #include <iostream>
 
 using namespace std;
 
+//error code
 enum ProgramError {
 	SUCCESS,
 	UNKNOWN_ERR,
 	TOO_FEW_ARG, TOO_MANY_ARG, //cmd args
 	HAND_OVERFLOW, EMPTY_HAND, HAND_OUT_OF_RANGE, HAND_NOT_COMPLETE, TOO_MANY_CARDS, SAME_CARD, //hand
-	INS_NOT_AVAIL, GAME_ALREADY_STARTED, UNKNOWN_GAME, NO_GAME_IN_PROCESS, //game
+	INS_NOT_AVAIL, GAME_ALREADY_STARTED, UNKNOWN_GAME, NO_GAME_IN_PROCESS, POT_OVERFLOW, //game
 	ALREADY_PLAYING, NO_ACTIVES, NO_WINNERS, NO_PLAYERS, //player
 	NO_CARD_TO_DEAL //deck
 };
 
+//strings for output of error message
 const vector<string> errorMsg {
 	"Successful run. ",
 	"An unknown error has occurred. ",
@@ -44,6 +42,7 @@ const vector<string> errorMsg {
 	"Game is already started! ",
 	"Unknown game! ",
 	"No game is currently in process! ",
+	"There is an issue with the pot. "
 	//player
 	"The player is already playing! ",
 	"No player is unfolded. ",

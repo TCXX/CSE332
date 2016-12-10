@@ -2,27 +2,24 @@
 SevenCardStud.cpp created by Cindy Le, Adrien Xie, and Yanni Yang
 */
 
-
 #include "stdafx.h"
 #include "SevenCardStud.h"
 #include "stdlib.h"
 
-//#define cout std::cout //cout is not ambiguous
-
 using namespace std;
 
-//A default constructor for fiveCardDraw that initializes dealer to be the first person and discard to be empty. 
+//Constructor
 SevenCardStud::SevenCardStud() : PokerGame() {
 	MAX_CARDS_IN_HAND = 7;
 }
 
+//Do nothing other than paying ante.
 int SevenCardStud::before_round() {
 	PokerGame::before_round();
-	//do nothing other than paying ante
 	return 0;
 }
 
-//A public virtual round method that iterates through the players calling their turn method and then their after_turn method.
+//Iterate through the players to take a turn.
 int SevenCardStud::round() {
 	size_t len = players.size();
 

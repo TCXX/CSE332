@@ -18,6 +18,7 @@ Player.h created by Cindy Le, Adrien Xie, and Yanni Yang
 
 using namespace std;
 
+//A class that represents player who can join a game with chips.
 struct Player {
 
 	string name;
@@ -39,6 +40,5 @@ struct Player {
 
 ostream& operator<<(ostream& out, const Player& p);
 bool playerRank(const shared_ptr<Player>& p1, const shared_ptr<Player>& p2);
-
 
 #endif //PLAYER_H_

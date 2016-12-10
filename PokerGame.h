@@ -6,7 +6,6 @@ PokerGame.h created by Cindy Le, Adrien Xie, and Yanni Yang
 #ifndef PokerGame_H_
 #define PokerGame_H_
 
-
 #include "Card.h"
 #include "Deck.h"
 #include "Player.h"
@@ -19,12 +18,11 @@ PokerGame.h created by Cindy Le, Adrien Xie, and Yanni Yang
 
 using namespace std;
 
+//A class that contains some common functions of all poker games.
 class PokerGame : public Game {
 
 public:
 	PokerGame();
-
-
 
 	int bet_in_turn(); 
 	int discardCards(Player& p);
@@ -33,15 +31,18 @@ public:
 	int dealAround(Visibility vis);
 	int dealSameToAll(Visibility vis);
 
-	/*Never subtract chips directly!!! Use payChips instead to avoid negative values*/
+	/*Never subtract chips directly. Instead, use payChips() to avoid negative values*/
 	unsigned int payChips(Player& p, unsigned int amount);
 	unsigned int betChips(Player& p);
+	void CheckChips();
+	unsigned int autoPlayerBet(int max, int min);
 
 protected:
     size_t MAX_CARDS_IN_HAND;
 
 	size_t dealer;
-	Deck discardDeck;
+	Deck deck; //main deck
+	Deck discardDeck; //deck containing cards discarded by players
 	unsigned int ante;
 	unsigned int pot;
 	unsigned int bet; // the cumulative amount players have bet during that phase

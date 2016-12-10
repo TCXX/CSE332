@@ -10,26 +10,27 @@ Game.cpp created by Cindy Le, Adrien Xie, and Yanni Yang
 
 using namespace std;
 
-//allocate storage outside the class for the static member
+//Allocate storage outside the class for the static member.
 shared_ptr<Game> Game::gamePtr;
 
-//No destructor is needed because of shared_ptr
+//No destructor is needed because of shared_ptr.
 
-//A public static instance method that returns a copy of the static pointer member variable.
+//Return a copy of the static pointer member variable.
 shared_ptr<Game> Game::instance() {
 	if (gamePtr == nullptr) {
 		throw INS_NOT_AVAIL;
 	}
 	else {
-		return gamePtr; //passed by value
+		return gamePtr;
 	}
 }
 
-//Returns the number of players.
+//Return the number of players.
 size_t Game::size() const {
 	return players.size();
 }
 
+//Return a list of all players in a vector.
 vector<string> Game::getPlayers() {
 	size_t len = players.size();
 	vector<string> list = vector<string>();
@@ -40,6 +41,7 @@ vector<string> Game::getPlayers() {
 	return list;
 }
 
+//Add a given list of players to the game.
 void Game::addPlayers(vector<string> list) {
 	size_t len = list.size();
 	for (size_t i = 0; i < len; i++) {
@@ -48,8 +50,7 @@ void Game::addPlayers(vector<string> list) {
 	}
 }
 
-//A public static start_game method that dynamically allocates an instance of the FiveCardDraw class.
-//The string parameter should contain "FiveCardDraw"
+//Dynamically allocates an game instance.
 void Game::startGame(const string& sofgames) {
 	if (gamePtr!= nullptr) {
 		throw GAME_ALREADY_STARTED;
@@ -71,6 +72,7 @@ void Game::startGame(const string& sofgames) {
 	}
 }
 
+//Go through a round of the current game.
 void Game::playGame() {
 	if (gamePtr == nullptr) {
 		throw NO_GAME_IN_PROCESS;
@@ -85,7 +87,7 @@ void Game::playGame() {
 	}
 }
 
-//A public static stop_game method that calls delete on the static pointer and reset the static pointer.
+//Delete and reset the static pointer.
 void Game::stopGame() {
 	if (gamePtr != nullptr) {
 		gamePtr.reset();
@@ -96,8 +98,7 @@ void Game::stopGame() {
 
 }
 
-//A public add_player method that dynamically allocates a Player and then push a pointer.
-//The player's name cannot be duplicate.
+//Dynamically allocates a Player and then push a pointer.
 void Game::addPlayer(const string &name) {
 	string namePrefix = name;
 	bool isAuto = false;
@@ -105,6 +106,7 @@ void Game::addPlayer(const string &name) {
 		namePrefix = namePrefix.substr(0, namePrefix.size() - 1);
 		isAuto = true;
 	}
+	//check for duplicates
 	auto ifHasPlayer = findPlayer(namePrefix);
 	if (ifHasPlayer) {
 		throw ALREADY_PLAYING;
@@ -115,27 +117,7 @@ void Game::addPlayer(const string &name) {
 	}
 }
 
-void Game::CheckChips() {
-	size_t len = players.size();
-	for (size_t i = len; i > 0; i--) {
-		if (players[i-1]->chip == 0) { //the newly added player has no chips
-			string ans;
-			cout << "Player " << players[i-1]->name << " has no chips. Reset? (yes/no) " << endl;
-			do {
-				getline(cin, ans);
-				transform(ans.begin(), ans.end(), ans.begin(), ::tolower);
-			} while (ans != "yes" && ans != "no");
-			if (ans == "no") {
-				players.erase(players.begin() + i-1);
-			}
-			else {
-				players[i-1]->reset();
-			}
-		}
-	}
-}
-
-//A public find_player method that returns either a shared_ptr to the matching Player or a singular shared_ptr.
+//Returns either a shared_ptr to the matching Player or a singular shared_ptr.
 shared_ptr<Player> Game::findPlayer(const string name) {
 	for (vector<shared_ptr<Player>>::iterator p = players.begin(); p != players.end(); p++) {
 		if ((*p)->name == name) {
@@ -145,8 +127,7 @@ shared_ptr<Player> Game::findPlayer(const string name) {
 	return nullptr;
 }
 
-
-//Check for autoplayers whether each of them leaves the game.
+//Decide for autoplayers whether each of them leaves the game.
 int Game::autoPlayerLeave() {
 	vector<size_t> autoPlayers = findAuto();
 	size_t numAuto = autoPlayers.size();
@@ -200,13 +181,14 @@ size_t Game::countActive() {
 	return active;
 }
 
+//Save all player data into corresponding txt files.
 int Game::saveToFile() {
-	//immediate update associated files
 	size_t len = players.size();
 	vector<size_t> autoPlayers = findAuto();
 	ofstream output;
 	for (size_t i = 0; i < len; i++) {
 		string name = (*players[i]).name;
+		//get rid of star
 		if (find(autoPlayers.begin(), autoPlayers.end(), i) != autoPlayers.end()) {
 			name = name.substr(0, name.size() - 1);
 		}

@@ -5,7 +5,6 @@ Deck.cpp created by Cindy Le, Adrien Xie, and Yanni Yang
 #include "stdafx.h"
 #include "Deck.h"
 
-
 using namespace std;
 
 //A constructor.
@@ -14,16 +13,13 @@ Deck::Deck() {
 }
 
 //A destructor: the compiler-supplied destructor is sufficient.
-Deck::~Deck() {
-	//No further action is needed as of now, therefore leaves the destructor for future implementation
-}
 
-//To return private cards variable even for outside of the class.
+//Return private cards variable even for outside of the class.
 vector<Card> Deck::getCards() const {
 	return cards;
 }
 
-//To pop and return the last card in the deck.
+//Pop and return the last card in the deck.
 Card Deck::popCard() {
 	if (cards.size()==0) throw(EMPTY_HAND);
 	Card c = cards.back();
@@ -31,23 +27,23 @@ Card Deck::popCard() {
 	return c;
 }
 
-//An add_card method that takes a card as its only parameter, and adds it to the deck.
+//Add given card to the deck.
 void Deck::addCard(Card& c) {
 	cards.push_back(c);
 }
 
-//A "shuffle" method that randomizes the order of all the cards.
+//Randomize the order of all the cards.
 void Deck::shuffle() {
 	srand((unsigned int)time(0));
 	std::shuffle(cards.begin(), cards.end(), default_random_engine());
 }
 
-//A const "size" method that returns the number of elements in the container member variable.
+//Return the number of cards.
 size_t Deck::size() const {
 	return cards.size();
 }
 
-//To print out deck's information, one card per line.
+//Print out deck's content, one card per line.
 string Deck::toString() const {
 	ostringstream out = ostringstream();
 	size_t len = cards.size();
@@ -67,7 +63,7 @@ string Deck::toString() const {
 	return out.str();
 }
 
-//To read a card's suit from a string.
+//Convert and return a card's suit from a string.
 CardSuit Deck::convertSuit(const char& input) {
 	switch (input) {
 	case 'S': case 's': return SPADES;
@@ -78,7 +74,7 @@ CardSuit Deck::convertSuit(const char& input) {
 	}
 }
 
-//To read a card's rank from a string.
+//Convert and return a card's rank from a string.
 CardRank Deck::convertRank(const char& input) {
 	switch (input) {
 	case 'A': case 'a': return A;
@@ -98,7 +94,7 @@ CardRank Deck::convertRank(const char& input) {
 	}
 }
 
-//A function that fills the deck with standard 52 cards.
+//Fill the deck with standard 52 cards.
 void Deck::standardized() {
 	cards = vector<Card>();
 	for (int i = 1; i < 5; i++) {
@@ -112,12 +108,13 @@ void Deck::standardized() {
 	shuffle();
 }
 
+//Flip all cards in deck to given visibility.
 void Deck::flipCards(Visibility vis) {
 	size_t len = cards.size();
 	for (size_t i = 1; i < len; i++) cards[i].visible = vis;
 }
 
-//A non-member insertion operator (operator<<) that prints out valid card definition strings on separate lines.
+//Print out deck's content.
 ostream& operator<<(ostream& out, const Deck& d) {
 	out << d.toString();
 	return out;

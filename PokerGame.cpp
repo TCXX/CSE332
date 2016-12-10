@@ -7,11 +7,9 @@ PokerGame.cpp created by Cindy Le, Adrien Xie, and Yanni Yang
 #include "PokerGame.h"
 #include "stdlib.h"
 
-//#define cout std::cout //cout is not ambiguous
-
 using namespace std;
 
-//A default constructor for fiveCardDraw that initializes dealer to be the first person and discard to be empty. 
+//A default constructor that initializes dealer to be the first person and discard to be empty. 
 PokerGame::PokerGame() {
 	dealer = 0;
 	pot = 0;
@@ -23,7 +21,7 @@ PokerGame::PokerGame() {
 	deck.standardized(); //52 cards
 }
 
-//A method that asks the user cards to discard and then move them to discarDeck.
+//Discard cards for a player and move them to discarDeck.
 int PokerGame::discardCards(Player& p) {
 	//skip if the player has already folded
 	if (p.isFold) return 0;
@@ -35,8 +33,7 @@ int PokerGame::discardCards(Player& p) {
 	vector<bool> ifDelete;
 	string toDiscard; //user response
 
-	//remove card correspondingly
-	if (p.isAuto) {
+	if (p.isAuto) { //discard cards for an autoplayer
 		ifDelete = p.hand.discardIndex();
 		for (size_t k = 0; k < MAX_CARDS_IN_HAND; k++) {
 			if (ifDelete[k]) {
@@ -55,7 +52,7 @@ int PokerGame::discardCards(Player& p) {
 		}
 	}
 
-	//remove the card from the player to the discard desk
+	//remove the card to discard desk
 	for (size_t i = MAX_CARDS_IN_HAND; i > 0; i--) {
 		if (ifDelete[i-1]) {
 			discardDeck.addCard(p.hand[i-1]);
@@ -66,7 +63,7 @@ int PokerGame::discardCards(Player& p) {
 	return 0;
 }
 
-//A method that deals as many as that they have discarded.
+//Deal cards to given player until hand is full.
 int PokerGame::dealUntilFull(Player& p, Visibility vis) {
 	for (size_t i = p.hand.size(); i < MAX_CARDS_IN_HAND; i++) {
 		dealCard(p, vis);
@@ -74,7 +71,7 @@ int PokerGame::dealUntilFull(Player& p, Visibility vis) {
 	return 0;
 }
 
-// deal a card to each of all players a card of the specified type.
+//Deal a card to each player of the specified type.
 int PokerGame::dealAround(Visibility vis) {
 	size_t len = players.size();
 	for (size_t j = 0; j < len; j++) {
@@ -86,7 +83,7 @@ int PokerGame::dealAround(Visibility vis) {
 	return 0;
 }
 
-//deal a card to a specified player of a specified type.
+//Deal a card to the given player of the given type.
 int PokerGame::dealCard(Player& p, Visibility vis) {
 	Card c;
 	if (deck.size() == 0) {
@@ -104,7 +101,7 @@ int PokerGame::dealCard(Player& p, Visibility vis) {
 	return 0;
 }
 
-//
+////Deal a same card to all players of the given type.
 int PokerGame::dealSameToAll(Visibility vis) {
 	Card c;
 	if (deck.size() == 0) {
@@ -123,12 +120,12 @@ int PokerGame::dealSameToAll(Visibility vis) {
 	return 0;
 }
 
-//A public virtual before_round method that shuffles and then deals one card at a time from the main deck.
+//Check chips and pay ante.
 int PokerGame::before_round() {
 	deck.shuffle();
 	CheckChips();
 
-	// each player place an ante of one chip to the pot
+	// each player place an ante to the pot
 	size_t len = players.size();
 	for (size_t i = 0; i < len; i++) {
 		pot += payChips(*players[i], ante);
@@ -139,11 +136,11 @@ int PokerGame::before_round() {
 
 //round() will be implemented in subclasses
 
-//A public virtual after_round method that sorts players by hand rank, recycles all cards, and asks whether to leave or join.
+//Sorts player by hand rank, ask whether to leave or join, and save player data.
 int PokerGame::after_round() {
 	size_t len = players.size();
 
-	//sort a temporary vector of pointers to players (a copy of the vector member variable)
+	//sort a temporary vector of pointers to players
 	vector<shared_ptr<Player>> tempPlayers;
 	for (size_t i = 0; i < len; i++) {
 		tempPlayers.push_back(players[i]);
@@ -211,7 +208,7 @@ int PokerGame::after_round() {
 	discardDeck = Deck();
 	deck.standardized(); //52 cards
 
-	//ask players who have zero chips
+	//ask players who have zero chips to reset
 	CheckChips();
 	len = players.size();
 
@@ -295,6 +292,7 @@ int PokerGame::after_round() {
 	return 0;
 }
 
+//Print out a list of current players under given mode.
 int Game::printPlayers(AccessMode mode) {
 	size_t len = players.size();
 	cout << endl;
@@ -304,6 +302,7 @@ int Game::printPlayers(AccessMode mode) {
 	return 0;
 }
 
+//All players bet until done.
 int PokerGame::bet_in_turn() {
 	size_t len = players.size();
 	if (len == 0) throw NO_PLAYERS;
@@ -333,7 +332,7 @@ int PokerGame::bet_in_turn() {
 	return 0;
 }
 
-// Claculate numer of chips a player pays.
+// Calculate numer of chips a player pays.
 unsigned int PokerGame::payChips(Player& p, unsigned int amount) {
 	int payed = amount;
 	if (p.chip > amount) { //add the amount equal to ante
@@ -346,10 +345,13 @@ unsigned int PokerGame::payChips(Player& p, unsigned int amount) {
 	return payed;
 }
 
-// Ask and deduct chips from player and add to a temporary bet variable
+// Ask and deduct chips and add to player's bet variable
 unsigned int PokerGame::betChips(Player& p) {
 	//skip if the player has already folded
 	if (p.isFold) return 0;
+
+	//check pot's capacity
+	if (pot > 300) throw POT_OVERFLOW;
 
 	//range for the number of chips valid to bet
 	int min;
@@ -359,14 +361,13 @@ unsigned int PokerGame::betChips(Player& p) {
 	bool changeBet = true;
 
 	cout << endl;
-	cout << p.toString(OWNER) << endl;
+	cout << p.toString(OWNER) << "bet " << bet << endl;
 
 	//skip player without chips
 	if (p.chip == 0) {
 		cout << "Run out of chips! " << endl;
 		return 0;
 	}
-
 
 	if (bet == 0) {
 		min = 0;
@@ -401,34 +402,69 @@ unsigned int PokerGame::betChips(Player& p) {
 
 	string str;
 	int num = -1;
-
-	//get the number to bet from user input
-	do {
-		getline(cin, str);
-		bool findNo = (str.find("f") != string::npos) && (str.length() == 1);
-		if (findNo) { //player chooses to fold
-			num = bet;
-			changeBet = false;
-			size_t len = p.hand.size();
-			for (size_t i = 0; i < len; i++) p.hand[i].visible = NEVER_SEEN;
-			p.isFold = true;
-			break;
-		}
-		else if (str.length() != 0) {
-			num = atoi(str.c_str());
-		}
-	} while (num < min || num > max);
-
-	unsigned int numToBet = (unsigned int)num;
+	unsigned int numToBet;
 	unsigned int due;
-	if (numToBet > p.bet) {
-		due = numToBet - p.bet; //extra chips to pay
-	}else {
-		due = numToBet;
+
+	if (p.isAuto) { //bet for autoplayer
+		numToBet = autoPlayerBet(max, min);
+		cout << numToBet << " (auto) " << endl;
 	}
-	
+	else { //get the number to bet from user input
+		do {
+			getline(cin, str);
+			bool findNo = (str.find("f") != string::npos) && (str.length() == 1);
+			if (findNo) { //player chooses to fold
+				num = bet;
+				changeBet = false;
+				size_t len = p.hand.size();
+				for (size_t i = 0; i < len; i++) p.hand[i].visible = NEVER_SEEN;
+				p.isFold = true;
+				break;
+			}
+			else if (str.length() != 0) {
+				num = atoi(str.c_str());
+			}
+		} while (num < min || num > max);
+		numToBet = (unsigned int)num;
+	}
+
+	if (numToBet > p.bet) {
+		due = numToBet - p.bet; //extra chips that needs to pay
+	}
+	else { //all in
+		due = numToBet; 
+		changeBet = false;
+	}
+
 	p.bet += payChips(p, due);
 	if (changeBet) bet = numToBet;
 	
 	return due;
+}
+
+//Decide for autoplayers what to bet.
+unsigned int PokerGame::autoPlayerBet(int max, int min) {
+	int leaveNum = ((int) rand() % (max-min)) + min;
+	return (unsigned int)leaveNum;
+}
+
+//Check if every player has chips to bet.
+void PokerGame::CheckChips() {
+	size_t len = players.size();
+	for (size_t i = len; i > 0; i--) { //not mess up with order
+		if (players[i - 1]->chip == 0) {
+			string ans;
+			cout << "Player " << players[i - 1]->name << " has no chips. Reset? (yes/no) " << endl;
+			do {
+				getline(cin, ans);
+				transform(ans.begin(), ans.end(), ans.begin(), ::tolower);
+			} while (ans != "yes" && ans != "no");
+			if (ans == "no") {
+				players.erase(players.begin() + i - 1);
+			}
+			else {
+				players[i - 1]->reset();
+			}
+		}
+	}
 }
