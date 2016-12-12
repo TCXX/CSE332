@@ -6,30 +6,28 @@ INSTRUCTION TO PLAY
 
 To run the test, enter the command line as follows separated by space:
 
-[Game Name] [Player 1’s Name] [Player 2’s Name] [More Players’ Names (optional)]
+[Game Name] [Player 1â€™s Name] [Player 2â€™s Name] [More Playersâ€™ Names (optional)]
 
 Game name : FiveCardDraw or SevenCardStud
 Players names: combinations of alphanumeric characters that represent players. 
 If followed by a star (*), the player will discard cards and leave the game automatically. 
-“NO” “No” “nO” “no, ” either followed or not followed by “*”, are not allowed.
+â€œNOâ€ â€œNoâ€ â€œnOâ€ â€œno, â€ either followed or not followed by â€œ*â€, are not allowed.
 
 FiveCardDraw has two betting phases, one before discarding cards and another after. 
 The program will first print out five cards that a player has and ask whether to discard or not. 
 When entering the card indices to discard, all integers should be in the same line. 
 The program will then print out player information twice, the first one in order of the time by 
-which they join the game while the second one by their hands’ rank.
+which they join the game while the second one by their handsâ€™ rank.
 
 SevenCardStud has five turns of dealing cards and five betting phases after each one of them. 
 Cards that are dealt facing down will only be visible until the end of round. 
-Before that, a player can see his/her own cards but not others’.
+Before that, a player can see his/her own cards but not othersâ€™.
 
 After a round, we ask if any player wants to leave or join. 
-The input should be a player’s name per line until a “no. ”
+The input should be a playerâ€™s name per line until a â€œno. â€
 If a player runs out of chips, this is the time the program asks whether to reset it to 20. 
 Then player data are stored as local files with four lines that contains name, wins, losses, and
 chips respectively. 
-
-Note: In this lab, we ignore autoplayers that we did for extra credit of last time.
 
 =====================================
 
@@ -45,7 +43,7 @@ share the same function in PokerGame. We also renamed before_turn(), turn(), and
 PokerGame based on their functional effects.
 
 Besides structural adjustment, we added betting phases to the games by using bet_in_turn(). It
-reads from command line input the number of chips and records it in member variable “bet” of
+reads from command line input the number of chips and records it in member variable â€œbetâ€ of
 each player. At the end of the round, these chips are either returned to players who win the game,
 or added to the pot that will then be shared by winners of the round.
 
@@ -78,7 +76,7 @@ After entered a new game name, the program continues to execute the old one.
 Caused by not properly resetting the game pointer to the new game.
 Fixed by adding reset() for the pointer.
 
-The member variable “pot” in the class PokerGame got crazily big ( e. g. 42972579 )
+The member variable â€œpotâ€ in the class PokerGame got crazily big ( e. g. 42972579 )
 Caused by the subtracting an unsigned int variable out of boundary. 
 Fixed by correcting the function betChip().
 
@@ -121,8 +119,8 @@ four betting phases after each one of them. Unlike the previous games, it has fi
 by all players. 
 
 To make this work, we defined an extra function in PokerGame that pops up a card the proper
-deck and then adds it to every player’s hand. Then we changed the Game class so that it could
-recognize “TexasHoldEm” as a game name.
+deck and then adds it to every playerâ€™s hand. Then we changed the Game class so that it could
+recognize â€œTexasHoldEmâ€ as a game name.
 
 ============================================================================
 
