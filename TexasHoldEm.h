@@ -21,8 +21,8 @@ using namespace std;
 
 //A game that has four turns of dealing cards and four betting phases after each one of them.
 class TexasHoldEm : public PokerGame {
-	virtual int before_round();
-	virtual int round();
+	int before_round();
+	int round();
 
 public:
 	TexasHoldEm();

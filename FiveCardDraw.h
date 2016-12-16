@@ -20,8 +20,8 @@ using namespace std;
 
 //A game that has two betting phases, one before discarding cards and another after. 
 class FiveCardDraw : public PokerGame {
-	virtual int before_round();
-	virtual int round();
+	int before_round();
+	int round();
 
 public:
 	FiveCardDraw();

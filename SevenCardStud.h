@@ -20,8 +20,8 @@ using namespace std;
 
 //A game that has five turns of dealing cards and five betting phases after each one of them. 
 class SevenCardStud : public PokerGame {
-	virtual int before_round();
-	virtual int round();
+	int before_round();
+	int round();
 
 public:
 	SevenCardStud();
