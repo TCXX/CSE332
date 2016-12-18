@@ -7,7 +7,6 @@ Card.h created by Cindy Le (lex@wustl.edu)
 #ifndef CARD_H_
 #define CARD_H_
 
-#include "stdafx.h"
 #include <vector>
 #include <string>
 
