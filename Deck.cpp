@@ -35,7 +35,7 @@ void Deck::addCard(Card& c) {
 //Randomize the order of all the cards.
 void Deck::shuffle() {
 	srand((unsigned int)time(0));
-	std::shuffle(cards.begin(), cards.end(), default_random_engine());
+	std::shuffle(cards.begin(), cards.end(), default_random_engine()); //FIX ME
 }
 
 //Return the number of cards.
