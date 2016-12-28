@@ -306,7 +306,9 @@ int Game::printPlayers(AccessMode mode) {
 int PokerGame::bet_in_turn() {
 	size_t len = players.size();
 	if (len == 0) throw NO_PLAYERS;
-
+	
+	bet = 0;
+	
 	int active; // the current number of unfolded players
 	size_t raiser = 0; // the last player who raises the bet; used to determine if betting phase ends
 	size_t i = 0; // the current player to ask for response
